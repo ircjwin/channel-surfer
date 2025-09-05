@@ -1,1 +1,1 @@
-# channel-surfer
+# Channel Surfer
