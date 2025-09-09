@@ -1,12 +1,13 @@
-[gd_scene load_steps=6 format=3 uid="uid://b11jfnrqpx205"]
+[gd_scene load_steps=7 format=3 uid="uid://b11jfnrqpx205"]
 
 [ext_resource type="Script" uid="uid://dnxyonvfbv0xo" path="res://addons/channel_surfer/channel_dock.gd" id="1_woldn"]
 [ext_resource type="Texture2D" uid="uid://be25vlrrme5xi" path="res://addons/channel_surfer/assets/add_item_icon.png" id="2_nh0gy"]
 [ext_resource type="Texture2D" uid="uid://0tgeu4yftsm2" path="res://addons/channel_surfer/assets/remove_item_icon.png" id="3_spbq0"]
+[ext_resource type="Resource" uid="uid://cq2c7xpa6fwp" path="res://addons/channel_surfer/test_map.tres" id="4_7jis3"]
 [ext_resource type="Texture2D" uid="uid://dwv00nqrkul7d" path="res://addons/channel_surfer/assets/arrow_icon.png" id="4_y873h"]
 [ext_resource type="Texture2D" uid="uid://bsu6x77fkrvwl" path="res://addons/channel_surfer/assets/arrow_collapsed_icon.png" id="5_wbux7"]
 
-[node name="ChannelDock" type="Control"]
+[node name="Waves" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -16,6 +17,7 @@ grow_vertical = 2
 script = ExtResource("1_woldn")
 add_item_icon = ExtResource("2_nh0gy")
 remove_item_icon = ExtResource("3_spbq0")
+channel_map = ExtResource("4_7jis3")
 
 [node name="ChannelTree" type="Tree" parent="."]
 unique_name_in_owner = true
