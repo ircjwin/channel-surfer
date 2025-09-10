@@ -3,12 +3,12 @@ class_name SenderComponent
 extends ChannelSurfer
 
 
-signal parcel_request_fulfilled(requested_parcel: Variant)
+signal parcel_request_fulfilled(requested_parcel: Resource)
 
 const PARCEL_CONTENTS: String = "parcel/parcel_contents"
 const PARCEL_REQUEST_TYPE: String = "parcel_request/request_type"
 
-var parcel: Node
+var parcel: Resource
 var parcel_request: Script
 
 func _get_property_list() -> Array[Dictionary]:
@@ -17,14 +17,14 @@ func _get_property_list() -> Array[Dictionary]:
         "name": PARCEL_CONTENTS,
         "type": TYPE_OBJECT,
         "usage": PROPERTY_USAGE_DEFAULT,
-        "hint": PROPERTY_HINT_NODE_TYPE
+        "hint": PROPERTY_HINT_RESOURCE_TYPE,
     })
     properties.append({
         "name": PARCEL_REQUEST_TYPE,
         "type": TYPE_OBJECT,
         "usage": PROPERTY_USAGE_DEFAULT,
         "hint": PROPERTY_HINT_RESOURCE_TYPE,
-        "hint_string": "Script"
+        "hint_string": "Script",
     })
     return properties
 
@@ -44,8 +44,8 @@ func _set(property: StringName, value: Variant) -> bool:
         return true
     return false
 
-func send_postcard() -> void:
-    get_tree().call_group(_get_most_precise(), "receive_postcard")
+func send_ping() -> void:
+    get_tree().call_group(_get_most_precise(), "receive_ping")
 
 func send_parcel() -> void:
     if parcel:
@@ -55,7 +55,6 @@ func send_parcel_request() -> void:
     if parcel_request:
         get_tree().call_group(_get_most_precise(), "receive_parcel_request", parcel_request, _confirm_receipt)
 
-func _confirm_receipt(requested_parcel: Variant) -> void:
+func _confirm_receipt(requested_parcel: Resource) -> void:
     if parcel_request.can_instantiate() and is_instance_of(requested_parcel, parcel_request):
         parcel_request_fulfilled.emit(requested_parcel)
-

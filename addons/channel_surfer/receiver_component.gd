@@ -7,10 +7,10 @@ const PARCEL_EXPECTED_TYPE: String = "parcel/expected_type"
 const PARCEL_REQUEST_RESPONSES: String = "parcel_request/responses"
 
 var expected_type: Script
-var request_responses: Array[Node] = []
+var request_responses: Array[Resource] = []
 
 ## These could probably just be signals
-var read_postcard: Callable
+var hear_ping: Callable
 var open_parcel: Callable
 
 func _ready() -> void:
@@ -23,14 +23,14 @@ func _get_property_list() -> Array[Dictionary]:
         "type": TYPE_OBJECT,
         "usage": PROPERTY_USAGE_DEFAULT,
         "hint": PROPERTY_HINT_RESOURCE_TYPE,
-        "hint_string": "Script"
+        "hint_string": "Script",
     })
     properties.append({
         "name": PARCEL_REQUEST_RESPONSES,
         "type": TYPE_ARRAY,
         "usage": PROPERTY_USAGE_DEFAULT,
         "hint": PROPERTY_HINT_TYPE_STRING,
-        "hint_string": "%d/%d:Node" % [TYPE_OBJECT, PROPERTY_HINT_NODE_TYPE]
+        "hint_string": "%d/%d:Resource" % [TYPE_OBJECT, PROPERTY_HINT_RESOURCE_TYPE],
     })
     return properties
 
@@ -50,18 +50,18 @@ func _set(property: StringName, value: Variant) -> bool:
         return true
     return false
 
-func receive_postcard() -> void:
-    if read_postcard.is_valid():
-        read_postcard.call()
+func receive_ping() -> void:
+    if hear_ping.is_valid():
+        hear_ping.call()
 
-func receive_parcel(parcel: Variant) -> void:
+func receive_parcel(parcel: Resource) -> void:
     if expected_type.can_instantiate() and is_instance_of(parcel, expected_type):
         if open_parcel.is_valid():
             open_parcel.call(parcel)
 
 func receive_parcel_request(parcel_request: Script, request_callback: Callable) -> void:
     if parcel_request.can_instantiate() and request_callback.is_valid():
-        for request_response: Node in request_responses:
+        for request_response: Resource in request_responses:
             if is_instance_of(request_response, parcel_request):
                 request_callback.call(request_response)
                 return

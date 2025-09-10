@@ -4,8 +4,5 @@
 
 [resource]
 script = ExtResource("1_lnvce")
-legend = Dictionary[String, Array]({
-"Bum": ["Cooler"],
-"Crumb": ["Cock"]
-})
+legend = Dictionary[String, Array]({})
 metadata/_custom_type_script = "uid://ba8dey7icj0av"

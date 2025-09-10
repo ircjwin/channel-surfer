@@ -95,15 +95,23 @@ func _on_item_activated() -> void:
 func _on_item_edited() -> void:
     var tree_item: TreeItem = channel_tree.get_edited()
     var item_parent: TreeItem = tree_item.get_parent()
+    var new_text: String = tree_item.get_text(FIRST_COLUMN)
+    if new_text == prev_item_text:
+        prev_item_text = ""
+        return
+    var unique_text: String = _enforce_unique(item_parent, new_text)
+    if unique_text != new_text:
+        tree_item.set_text(FIRST_COLUMN, unique_text)
+        new_text = unique_text
     if item_parent == channel_tree.get_root():
-        channel_map.legend.set(tree_item.get_text(FIRST_COLUMN), channel_map.legend[prev_item_text])
+        channel_map.legend.set(new_text, channel_map.legend[prev_item_text])
         channel_map.legend.erase(prev_item_text)
     else:
         channel_map.legend[item_parent.get_text(FIRST_COLUMN)] = \
             channel_map.legend[item_parent.get_text(FIRST_COLUMN)].map(
                 func(x: String) -> String:
                     if x == prev_item_text:
-                        return tree_item.get_text(FIRST_COLUMN)
+                        return new_text
                     else:
                         return x
                     )
@@ -120,9 +128,34 @@ func _on_item_mouse_selected(mouse_position: Vector2, mouse_button_index: int) -
             var is_main: bool = item_parent == channel_tree.get_root()
             _add_tree_item.call_deferred(item_parent, item_index, is_main)
 
+func _enforce_unique(item_parent: TreeItem, current_text: String) -> String:
+    var siblings: Array[String]
+    var channel_array: Array[String]
+    var counter: int = 0
+    var is_unique: bool = true
+    if item_parent == channel_tree.get_root():
+        channel_array = channel_map.legend.keys()
+    else:
+        channel_array = channel_map.legend[item_parent.get_text(FIRST_COLUMN).to_lower()]
+    siblings = channel_array.duplicate()
+    siblings.sort()
+    for sibling_name: String in siblings:
+        if sibling_name.begins_with(current_text):
+            is_unique = false
+            var str_tokens: PackedStringArray= sibling_name.split(" ")
+            if str_tokens[-1].is_valid_int():
+                var temp_counter: int = str_tokens[-1].to_int()
+                if temp_counter - 1 == counter:
+                    counter = temp_counter
+    if is_unique:
+        return current_text
+    else:
+        counter += 1
+        return current_text + " " + str(counter)
+
 func _add_tree_item(item_parent: TreeItem, item_index: int, is_main: bool) -> void:
     var new_item: TreeItem = channel_tree.create_item(item_parent, item_index)
-    var channel_text = NEW_CHANNEL_TEXT
+    var channel_text = _enforce_unique(item_parent, NEW_CHANNEL_TEXT)
     var counter = 1
     if is_main:
         while channel_map.legend.has(channel_text):
@@ -136,6 +169,7 @@ func _add_tree_item(item_parent: TreeItem, item_index: int, is_main: bool) -> vo
             counter += 1
         channel_map.legend[item_parent.get_text(FIRST_COLUMN)].append(channel_text)
     new_item.set_text(FIRST_COLUMN, channel_text)
+    new_item.collapsed = true
     ResourceSaver.save(channel_map)
 
 func _create_item_adder(adder_parent: TreeItem, is_root: bool = false) -> void:
