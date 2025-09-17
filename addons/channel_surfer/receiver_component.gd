@@ -13,8 +13,12 @@ var request_responses: Array[Resource] = []
 var hear_ping: Callable
 var open_parcel: Callable
 
+
 func _ready() -> void:
+    if not has_meta(ID_KEY):
+        set_meta(ID_KEY, IDGen.generate())
     _receive(true)
+
 
 func _get_property_list() -> Array[Dictionary]:
     var properties: Array[Dictionary] = []
@@ -34,12 +38,14 @@ func _get_property_list() -> Array[Dictionary]:
     })
     return properties
 
+
 func _get(property: StringName) -> Variant:
     if property == PARCEL_EXPECTED_TYPE:
         return expected_type
     if property == PARCEL_REQUEST_RESPONSES:
         return request_responses
     return null
+
 
 func _set(property: StringName, value: Variant) -> bool:
     if property == PARCEL_EXPECTED_TYPE:
@@ -50,14 +56,17 @@ func _set(property: StringName, value: Variant) -> bool:
         return true
     return false
 
+
 func receive_ping() -> void:
     if hear_ping.is_valid():
         hear_ping.call()
+
 
 func receive_parcel(parcel: Resource) -> void:
     if expected_type.can_instantiate() and is_instance_of(parcel, expected_type):
         if open_parcel.is_valid():
             open_parcel.call(parcel)
+
 
 func receive_parcel_request(parcel_request: Script, request_callback: Callable) -> void:
     if parcel_request.can_instantiate() and request_callback.is_valid():

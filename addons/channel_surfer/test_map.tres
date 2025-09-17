@@ -1,8 +1,0 @@
-[gd_resource type="Resource" script_class="ChannelMap" load_steps=2 format=3 uid="uid://cq2c7xpa6fwp"]
-
-[ext_resource type="Script" uid="uid://ba8dey7icj0av" path="res://addons/channel_surfer/channel_map.gd" id="1_lnvce"]
-
-[resource]
-script = ExtResource("1_lnvce")
-legend = Dictionary[String, Array]({})
-metadata/_custom_type_script = "uid://ba8dey7icj0av"

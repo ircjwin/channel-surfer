@@ -1,11 +1,16 @@
-[gd_scene load_steps=7 format=3 uid="uid://b11jfnrqpx205"]
+[gd_scene load_steps=12 format=3 uid="uid://b11jfnrqpx205"]
 
 [ext_resource type="Script" uid="uid://dnxyonvfbv0xo" path="res://addons/channel_surfer/channel_dock.gd" id="1_woldn"]
-[ext_resource type="Texture2D" uid="uid://be25vlrrme5xi" path="res://addons/channel_surfer/assets/add_item_icon.png" id="2_nh0gy"]
-[ext_resource type="Texture2D" uid="uid://0tgeu4yftsm2" path="res://addons/channel_surfer/assets/remove_item_icon.png" id="3_spbq0"]
-[ext_resource type="Resource" uid="uid://cq2c7xpa6fwp" path="res://addons/channel_surfer/test_map.tres" id="4_7jis3"]
+[ext_resource type="Texture2D" uid="uid://be25vlrrme5xi" path="res://addons/channel_surfer/assets/item_create_icon.png" id="2_nh0gy"]
+[ext_resource type="Texture2D" uid="uid://0tgeu4yftsm2" path="res://addons/channel_surfer/assets/item_remove_icon.png" id="3_spbq0"]
+[ext_resource type="Resource" uid="uid://cq2c7xpa6fwp" path="res://addons/channel_surfer/data/test_map.tres" id="4_7jis3"]
 [ext_resource type="Texture2D" uid="uid://dwv00nqrkul7d" path="res://addons/channel_surfer/assets/arrow_icon.png" id="4_y873h"]
+[ext_resource type="Texture2D" uid="uid://47fdem0fpjjc" path="res://addons/channel_surfer/assets/item_alert_icon.png" id="5_2tb0v"]
 [ext_resource type="Texture2D" uid="uid://bsu6x77fkrvwl" path="res://addons/channel_surfer/assets/arrow_collapsed_icon.png" id="5_wbux7"]
+[ext_resource type="Texture2D" uid="uid://dgpg0vkof5usy" path="res://addons/channel_surfer/assets/debug_icon.png" id="6_e51vr"]
+[ext_resource type="Texture2D" uid="uid://vc3v02y8u6u0" path="res://addons/channel_surfer/assets/channel_icon.png" id="8_e51vr"]
+[ext_resource type="Script" uid="uid://bbbqt2g1m1xka" path="res://addons/channel_surfer/channel_conflicts.gd" id="10_2tb0v"]
+[ext_resource type="JSON" path="res://addons/channel_surfer/data/instance_map.json" id="11_8hn8e"]
 
 [node name="Waves" type="Control"]
 layout_mode = 3
@@ -17,19 +22,53 @@ grow_vertical = 2
 script = ExtResource("1_woldn")
 add_item_icon = ExtResource("2_nh0gy")
 remove_item_icon = ExtResource("3_spbq0")
+debug_icon = ExtResource("6_e51vr")
+alert_icon = ExtResource("5_2tb0v")
 channel_map = ExtResource("4_7jis3")
 
-[node name="ChannelTree" type="Tree" parent="."]
-unique_name_in_owner = true
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="ChannelButton" type="Button" parent="VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Channels"
+icon = ExtResource("8_e51vr")
+
+[node name="DebugButton" type="Button" parent="VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Debug"
+icon = ExtResource("5_2tb0v")
+
+[node name="ChannelTree" type="Tree" parent="VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
 theme_override_colors/guide_color = Color(1, 1, 1, 0.3)
 theme_override_constants/draw_guides = 1
 theme_override_constants/draw_relationship_lines = 0
-theme_override_icons/arrow_collapsed = ExtResource("4_y873h")
 theme_override_icons/arrow = ExtResource("5_wbux7")
+theme_override_icons/arrow_collapsed = ExtResource("4_y873h")
 hide_root = true
+
+[node name="Debug" type="RichTextLabel" parent="VBoxContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/default_color = Color(1, 0.47058824, 0.41960785, 1)
+bbcode_enabled = true
+script = ExtResource("10_2tb0v")
+channel_map = ExtResource("4_7jis3")
+instance_map = ExtResource("11_8hn8e")
