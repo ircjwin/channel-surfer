@@ -19,3 +19,6 @@ mono_crash.*.json
 
 # VSCode specific ignores
 .vscode/
+
+# Project specific ignores
+addons/channel_surfer/data/*.json

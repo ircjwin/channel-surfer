@@ -3,8 +3,9 @@ class_name ChannelSurfer
 extends Node
 
 
-@onready var test_map: ChannelMap = preload("res://addons/channel_surfer/data/test_map.tres")
+@onready var channel_map: JSON = preload(CHANNEL_MAP_PATH)
 
+const CHANNEL_MAP_PATH: String = "res://addons/channel_surfer/data/channel_map.json"
 const CHANNEL_PREFIX: String = "secure_channel"
 const CHANNEL_PLACEHOLDER: String = "none"
 const COMPONENT_GROUP: String = "channel_surfer_component"
@@ -25,10 +26,10 @@ func _enter_tree() -> void:
 
 func _get_property_list() -> Array[Dictionary]:
     var properties: Array[Dictionary] = []
-    var main_channel_list: Array[String] = test_map.legend.keys()
+    var main_channel_list: Array = channel_map.data.keys()
     var sub_channel_list: Array = []
-    if test_map.legend.has(main_channel):
-        sub_channel_list = test_map.legend[main_channel]
+    if channel_map.data.has(main_channel):
+        sub_channel_list = channel_map.data[main_channel]
 
     var make_readable: Callable = func(x: String): return x.capitalize()
     var main_hint_string: String = CHANNEL_PLACEHOLDER.capitalize() + "," + ",".join(main_channel_list.map(make_readable))
