@@ -1,28 +1,23 @@
 @tool
-class_name ChannelConflicts
+class_name ChannelDebug
 extends RichTextLabel
 
 
 signal alerts_cleared
 signal alerts_filled
+signal instance_map_changed(changed_map: Dictionary)
 
-var instance_map: JSON
+var instance_map: Dictionary
 
 const DEBUG_FONT_COLOR: String = "ff786b"
-const INSTANCE_MAP_PATH: String = "res://addons/channel_surfer/data/instance_map.json"
 
 
 func _ready() -> void:
-    if not FileAccess.file_exists(INSTANCE_MAP_PATH):
-        var f: FileAccess = FileAccess.open(INSTANCE_MAP_PATH, FileAccess.WRITE)
-        f.store_string("{}")
-        f.close()
-
-    var f: FileAccess = FileAccess.open(INSTANCE_MAP_PATH, FileAccess.READ)
-    instance_map = JSON.new()
-    instance_map.parse(f.get_as_text())
-    f.close()
     add_to_group(ChannelSurfer.DEBUG_GROUP)
+
+
+func set_instance_map(new_map: Dictionary) -> void:
+    instance_map = new_map
 
 
 func add_instance(surfer_node: ChannelSurfer) -> void:
@@ -30,7 +25,7 @@ func add_instance(surfer_node: ChannelSurfer) -> void:
         var root_scene_path: String = surfer_node.owner.scene_file_path
         var root_scene_uid: String = ResourceUID.path_to_uid(root_scene_path)
         var surfer_uid: String = surfer_node.get_meta(ChannelSurfer.ID_KEY)
-        var scene_dict: Dictionary = instance_map.data.get_or_add(root_scene_uid, {})
+        var scene_dict: Dictionary = instance_map.get_or_add(root_scene_uid, {})
 
         if surfer_node.main_channel == ChannelSurfer.CHANNEL_PLACEHOLDER:
             scene_dict.erase(surfer_uid)
@@ -42,22 +37,22 @@ func add_instance(surfer_node: ChannelSurfer) -> void:
             }
 
         if scene_dict.is_empty():
-            instance_map.data.erase(root_scene_uid)
+            instance_map.erase(root_scene_uid)
 
-        var f: FileAccess = FileAccess.open(INSTANCE_MAP_PATH, FileAccess.WRITE)
-        f.store_string(JSON.stringify(instance_map.data))
-        f.close()
+        instance_map_changed.emit(instance_map)
 
 
-func update_alerts(channel_map: JSON) -> void:
+func update_alerts(channel_map: Dictionary) -> void:
     clear()
     var alert_found: bool = false
 
-    for scene_uid: String in instance_map.data.keys():
+    for scene_uid: String in instance_map.keys():
         var scene_header_added: bool = false
-        for instance: Dictionary in instance_map.data[scene_uid].values():
-            if channel_map.data.has(instance.main_channel):
-                if channel_map.data[instance.main_channel].has(instance.sub_channel):
+        for instance: Dictionary in instance_map[scene_uid].values():
+            var main_channel: String = instance["main_channel"]
+            if  main_channel == ChannelSurfer.CHANNEL_PLACEHOLDER or channel_map.has(main_channel):
+                var sub_channel: String = instance["sub_channel"]
+                if sub_channel == ChannelSurfer.CHANNEL_PLACEHOLDER or channel_map[main_channel].has(sub_channel):
                     continue
 
             alert_found = true

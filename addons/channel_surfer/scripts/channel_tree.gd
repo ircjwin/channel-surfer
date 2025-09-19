@@ -1,16 +1,12 @@
 @tool
-extends Control
+class_name ChannelTree
+extends Tree
 
+
+signal channel_map_changed(changed_map: Dictionary)
 
 @export var add_item_icon: Texture2D
 @export var remove_item_icon: Texture2D
-@export var debug_icon: Texture2D
-@export var alert_icon: Texture
-
-@onready var channel_tree: Tree = %ChannelTree
-@onready var debug: ChannelConflicts = %Debug
-@onready var channel_button: Button = %ChannelButton
-@onready var debug_button: Button = %DebugButton
 
 const NEW_CHANNEL_TEXT: String = "New Channel"
 const ADD_MAIN_TEXT: String = "New Main..."
@@ -19,88 +15,45 @@ const ADD_MAIN_COLOR: Color = Color(0, 0, 0, 0.4)
 const ADD_SUB_COLOR: Color = Color(0, 0, 0, 0.2)
 const FIRST_COLUMN: int = 0
 
-var channel_map: JSON
+var channel_map: Dictionary
 var prev_item_text: String = ""
 var prev_hovered_item: TreeItem = null
 var is_hovering: bool = false
+var is_locked: bool = false
 
 ## Consider checks for button click
 
 func _ready() -> void:
-    debug.hide()
-    channel_tree.show()
-
-    debug.alerts_filled.connect(_on_alerts_filled)
-    debug.alerts_cleared.connect(_on_alerts_cleared)
-
-    channel_button.pressed.connect(_on_channel_button_pressed)
-    debug_button.pressed.connect(_on_debug_button_pressed)
-
-    channel_tree.item_mouse_selected.connect(_on_item_mouse_selected)
-    channel_tree.item_edited.connect(_on_item_edited)
-    channel_tree.item_activated.connect(_on_item_activated)
-    channel_tree.mouse_entered.connect(_on_mouse_entered)
-    channel_tree.mouse_exited.connect(_on_mouse_exited)
-    channel_tree.button_clicked.connect(_on_button_clicked)
-
-    _build_tree()
-    debug.update_alerts(channel_map)
-
-
-func _save_channel_map() -> void:
-    var f: FileAccess = FileAccess.open(ChannelSurfer.CHANNEL_MAP_PATH, FileAccess.WRITE)
-    f.store_string(JSON.stringify(channel_map.data))
-    f.close()
-
-    get_tree().call_group(ChannelSurfer.COMPONENT_GROUP, "notify_property_list_changed")
-    debug.update_alerts(channel_map)
-
-
-func _on_alerts_filled() -> void:
-    debug_button.icon = alert_icon
-    debug_button.queue_redraw()
-
-
-func _on_alerts_cleared() -> void:
-    debug_button.icon = debug_icon
-    debug_button.queue_redraw()
-
-
-func _on_channel_button_pressed() -> void:
-    debug.hide()
-    channel_tree.show()
-
-
-func _on_debug_button_pressed() -> void:
-    channel_tree.hide()
-    debug.show()
+    item_mouse_selected.connect(_on_item_mouse_selected)
+    item_edited.connect(_on_item_edited)
+    item_activated.connect(_on_item_activated)
+    mouse_entered.connect(_on_mouse_entered)
+    mouse_exited.connect(_on_mouse_exited)
+    button_clicked.connect(_on_button_clicked)
 
 
 func _process(delta: float) -> void:
-    if is_hovering:
+    if not is_locked and is_hovering:
         _follow_hover()
 
 
-func _build_tree() -> void:
-    if not FileAccess.file_exists(ChannelSurfer.CHANNEL_MAP_PATH):
-        var f: FileAccess = FileAccess.open(ChannelSurfer.CHANNEL_MAP_PATH, FileAccess.WRITE)
-        f.store_string("{}")
-        f.close()
+func get_channel_map() -> Dictionary:
+    return channel_map
 
-    var f: FileAccess = FileAccess.open(ChannelSurfer.CHANNEL_MAP_PATH, FileAccess.READ)
-    channel_map = JSON.new()
-    channel_map.parse(f.get_as_text())
-    f.close()
 
-    channel_tree.clear()
-    var root = channel_tree.create_item()
-    channel_tree.hide_root = true
+func build_tree(new_map: Dictionary = {}) -> void:
+    if not new_map.is_empty():
+        channel_map = new_map
 
-    for main_channel: String in channel_map.data:
-        var new_child = channel_tree.create_item(root)
+    clear()
+    var root = create_item()
+    hide_root = true
+
+    for main_channel: String in channel_map:
+        var new_child = create_item(root)
         new_child.set_text(FIRST_COLUMN, main_channel.capitalize())
-        for sub_channel: String in channel_map.data[main_channel]:
-            var new_grandchild = channel_tree.create_item(new_child)
+        for sub_channel: String in channel_map[main_channel]:
+            var new_grandchild = create_item(new_child)
             new_grandchild.set_text(FIRST_COLUMN, sub_channel.capitalize())
         _create_item_adder(new_child)
         new_child.collapsed = true
@@ -111,14 +64,14 @@ func _on_button_clicked(item: TreeItem, _column: int, _id: int, mouse_button_ind
     if mouse_button_index == MOUSE_BUTTON_LEFT:
         var item_parent: TreeItem = item.get_parent()
         var item_text: String = item.get_text(FIRST_COLUMN).to_snake_case()
-        if item_parent == channel_tree.get_root():
-            channel_map.data.erase(item_text)
+        if item_parent == get_root():
+            channel_map.erase(item_text)
         else:
             var parent_text: String = item_parent.get_text(FIRST_COLUMN).to_snake_case()
-            channel_map.data[parent_text].erase(item_text)
+            channel_map[parent_text].erase(item_text)
         item.free()
 
-        _save_channel_map()
+        channel_map_changed.emit(channel_map)
 
 
 func _on_mouse_entered() -> void:
@@ -140,7 +93,7 @@ func _is_adder(item: TreeItem) -> bool:
 
 
 func _follow_hover() -> void:
-    var hovered_item: TreeItem = channel_tree.get_item_at_position(channel_tree.get_local_mouse_position())
+    var hovered_item: TreeItem = get_item_at_position(get_local_mouse_position())
     if hovered_item == prev_hovered_item:
         return
     if prev_hovered_item:
@@ -151,16 +104,18 @@ func _follow_hover() -> void:
 
 
 func _on_item_activated() -> void:
-    var selected_item: TreeItem = channel_tree.get_selected()
+    if is_locked:
+        return
+    var selected_item: TreeItem = get_selected()
     var item_parent: TreeItem = selected_item.get_parent()
     if selected_item != item_parent.get_child(-1):
         prev_item_text = selected_item.get_text(FIRST_COLUMN).to_snake_case()
         selected_item.set_editable(FIRST_COLUMN, true)
-        channel_tree.edit_selected()
+        edit_selected()
 
 
 func _on_item_edited() -> void:
-    var tree_item: TreeItem = channel_tree.get_edited()
+    var tree_item: TreeItem = get_edited()
     var item_parent: TreeItem = tree_item.get_parent()
     var new_text: String = tree_item.get_text(FIRST_COLUMN).to_snake_case()
     if new_text == prev_item_text:
@@ -171,12 +126,12 @@ func _on_item_edited() -> void:
         # Enforce .capitalize() even if text is already unique
         tree_item.set_text(FIRST_COLUMN, unique_text)
         new_text = unique_text.to_snake_case()
-    if item_parent == channel_tree.get_root():
-        channel_map.data.set(new_text, channel_map.data[prev_item_text])
-        channel_map.data.erase(prev_item_text)
+    if item_parent == get_root():
+        channel_map.set(new_text, channel_map[prev_item_text])
+        channel_map.erase(prev_item_text)
     else:
         var parent_text: String = item_parent.get_text(FIRST_COLUMN).to_snake_case()
-        channel_map.data[parent_text] = channel_map.data[parent_text].map(
+        channel_map[parent_text] = channel_map[parent_text].map(
             func(x: String) -> String:
                 if x == prev_item_text:
                     return new_text
@@ -185,16 +140,18 @@ func _on_item_edited() -> void:
     prev_item_text = ""
     tree_item.set_editable(FIRST_COLUMN, false)
 
-    _save_channel_map()
+    channel_map_changed.emit(channel_map)
 
 
 func _on_item_mouse_selected(mouse_position: Vector2, mouse_button_index: int) -> void:
+    if is_locked:
+        return
     if mouse_button_index == MOUSE_BUTTON_LEFT:
-        var selected_item: TreeItem = channel_tree.get_item_at_position(mouse_position)
+        var selected_item: TreeItem = get_item_at_position(mouse_position)
         var item_parent: TreeItem = selected_item.get_parent()
         if selected_item == item_parent.get_child(-1):
             var item_index: int = item_parent.get_child_count() - 1
-            var is_main: bool = item_parent == channel_tree.get_root()
+            var is_main: bool = item_parent == get_root()
             _add_tree_item.call_deferred(item_parent, item_index, is_main)
 
 
@@ -204,11 +161,11 @@ func _enforce_unique(item_parent: TreeItem, current_text: String) -> String:
     var channel_array: Array
     var counter: int = 0
     var is_unique: bool = true
-    if item_parent == channel_tree.get_root():
-        channel_array = channel_map.data.keys()
+    if item_parent == get_root():
+        channel_array = channel_map.keys()
     else:
         var parent_text: String = item_parent.get_text(FIRST_COLUMN).to_snake_case()
-        channel_array = channel_map.data[parent_text]
+        channel_array = channel_map[parent_text]
     siblings = channel_array.duplicate()
     siblings.sort()
     for sibling_name: String in siblings:
@@ -227,24 +184,26 @@ func _enforce_unique(item_parent: TreeItem, current_text: String) -> String:
 
 
 func _add_tree_item(item_parent: TreeItem, item_index: int, is_main: bool) -> void:
-    var new_item: TreeItem = channel_tree.create_item(item_parent, item_index)
+    var new_item: TreeItem = create_item(item_parent, item_index)
     var channel_text = _enforce_unique(item_parent, NEW_CHANNEL_TEXT)
     var counter = 1
     if is_main:
-        channel_map.data.set(channel_text.to_snake_case(), [])
+        channel_map.set(channel_text.to_snake_case(), [])
         _create_item_adder(new_item)
     else:
         var parent_text: String = item_parent.get_text(FIRST_COLUMN).to_snake_case()
-        channel_map.data[parent_text].append(channel_text.to_snake_case())
+        channel_map[parent_text].append(channel_text.to_snake_case())
     # When enforce_unique returns snake_case, add .capitalize()
     new_item.set_text(FIRST_COLUMN, channel_text)
     new_item.collapsed = true
 
-    _save_channel_map()
+    channel_map_changed.emit(channel_map)
 
 
 func _create_item_adder(adder_parent: TreeItem, is_root: bool = false) -> void:
-    var new_item_adder: TreeItem = channel_tree.create_item(adder_parent)
+    if is_locked:
+        return
+    var new_item_adder: TreeItem = create_item(adder_parent)
     new_item_adder.set_icon(FIRST_COLUMN, add_item_icon)
     if is_root:
         new_item_adder.set_text(FIRST_COLUMN, ADD_MAIN_TEXT)

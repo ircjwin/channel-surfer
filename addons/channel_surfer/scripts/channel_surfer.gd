@@ -3,15 +3,14 @@ class_name ChannelSurfer
 extends Node
 
 
-@onready var channel_map: JSON = preload(CHANNEL_MAP_PATH)
-
-const CHANNEL_MAP_PATH: String = "res://addons/channel_surfer/data/channel_map.json"
 const CHANNEL_PREFIX: String = "secure_channel"
 const CHANNEL_PLACEHOLDER: String = "none"
 const COMPONENT_GROUP: String = "channel_surfer_component"
 const DEBUG_GROUP: String = "channel_surfer_debug"
+const MAP_GROUP: String = "channel_surfer_map"
 const ID_KEY: String = "cs_uid"
 
+var channel_map: Dictionary
 var main_channel: String = CHANNEL_PLACEHOLDER: set = _set_main_channel
 var sub_channel: String = CHANNEL_PLACEHOLDER: set = _set_sub_channel
 var main_channel_group: String = "": set = _set_main_channel_group
@@ -26,10 +25,13 @@ func _enter_tree() -> void:
 
 func _get_property_list() -> Array[Dictionary]:
     var properties: Array[Dictionary] = []
-    var main_channel_list: Array = channel_map.data.keys()
+    if not channel_map:
+        channel_map = {}
+
+    var main_channel_list: Array = channel_map.keys()
     var sub_channel_list: Array = []
-    if channel_map.data.has(main_channel):
-        sub_channel_list = channel_map.data[main_channel]
+    if channel_map.has(main_channel):
+        sub_channel_list = channel_map[main_channel]
 
     var make_readable: Callable = func(x: String): return x.capitalize()
     var main_hint_string: String = CHANNEL_PLACEHOLDER.capitalize() + "," + ",".join(main_channel_list.map(make_readable))
@@ -124,3 +126,11 @@ func _receive(value: bool) -> void:
     else:
         _update_channel_group(main_channel_group, "")
         _update_channel_group(sub_channel_group, "")
+
+
+func set_channel_map(new_map: Dictionary) -> void:
+    channel_map = new_map
+
+
+func _load_channel_map() -> void:
+    get_tree().call_group(MAP_GROUP, "request_channel_map")

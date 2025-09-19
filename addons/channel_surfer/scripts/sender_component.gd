@@ -13,6 +13,7 @@ var parcel_request: Script
 
 
 func _ready() -> void:
+    _load_channel_map()
     if not has_meta(ID_KEY):
         set_meta(ID_KEY, IDGen.generate())
 
