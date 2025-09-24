@@ -19,23 +19,44 @@ var _is_recipient: bool = false
 
 
 func _enter_tree() -> void:
+    print("%s ENTERED TREE" % name)
     if not is_in_group(COMPONENT_GROUP):
         add_to_group(COMPONENT_GROUP)
 
 
+func _exit_tree() -> void:
+    print("%s EXITED TREE" % name)
+
+
+func _notification(what: int) -> void:
+    if what == NOTIFICATION_EDITOR_POST_SAVE:
+        print("%s WAS POSTSAVED" % name)
+        _sync_channels()
+
+var has_processed: bool = false
+func _process(delta: float) -> void:
+    if not has_processed:
+        has_processed = true
+        print("%s FIRST PROCESSS" % name)
+    # if Engine.is_editor_hint() and not channel_map:
+    #     print("%s CALLING FOR MAP IN PROCESS" % name)
+    #     _load_channel_map()
+
+
 func _get_property_list() -> Array[Dictionary]:
     var properties: Array[Dictionary] = []
-    if not channel_map:
-        channel_map = {}
+    var main_hint_string: String = CHANNEL_PLACEHOLDER.capitalize() + ","
+    var sub_hint_string: String = CHANNEL_PLACEHOLDER.capitalize() + ","
 
-    var main_channel_list: Array = channel_map.keys()
-    var sub_channel_list: Array = []
-    if channel_map.has(main_channel):
-        sub_channel_list = channel_map[main_channel]
+    if channel_map:
+        var main_channel_list: Array = channel_map.keys()
+        var sub_channel_list: Array = []
+        if channel_map.has(main_channel):
+            sub_channel_list = channel_map[main_channel]
 
-    var make_readable: Callable = func(x: String): return x.capitalize()
-    var main_hint_string: String = CHANNEL_PLACEHOLDER.capitalize() + "," + ",".join(main_channel_list.map(make_readable))
-    var sub_hint_string: String = CHANNEL_PLACEHOLDER.capitalize() + "," + ",".join(sub_channel_list.map(make_readable))
+        var make_readable: Callable = func(x: String): return x.capitalize()
+        main_hint_string += ",".join(main_channel_list.map(make_readable))
+        sub_hint_string += ",".join(sub_channel_list.map(make_readable))
 
     properties.append({
         "name": "main",
@@ -65,9 +86,14 @@ func _get(property: StringName) -> Variant:
 func _set(property: StringName, value: Variant) -> bool:
     if property == "main":
         main_channel = value.to_snake_case()
+        sub_channel = CHANNEL_PLACEHOLDER
+        # if is_node_ready():
+        #     _sync_channels()
         return true
     if property == "sub":
         sub_channel = value.to_snake_case()
+        # if is_node_ready():
+        #     _sync_channels()
         return true
     return false
 
@@ -78,14 +104,12 @@ func _get_most_precise() -> String:
 
 func _set_main_channel(value: String) -> void:
     main_channel = value
-    sub_channel = CHANNEL_PLACEHOLDER
     if main_channel == CHANNEL_PLACEHOLDER:
         main_channel_group = ""
     else:
         main_channel_group = CHANNEL_PREFIX + "_" + main_channel
-    if is_inside_tree():
-        get_tree().call_group(DEBUG_GROUP, "add_instance", self)
     notify_property_list_changed()
+    # _sync_channels()
 
 
 func _set_sub_channel(value: String) -> void:
@@ -94,8 +118,8 @@ func _set_sub_channel(value: String) -> void:
         sub_channel_group = ""
     else:
         sub_channel_group = main_channel_group + "_" + sub_channel
-    if is_inside_tree():
-        get_tree().call_group(DEBUG_GROUP, "add_instance", self)
+    # notify_property_list_changed()
+    # _sync_channels()
 
 
 func _set_main_channel_group(value: String) -> void:
@@ -129,8 +153,20 @@ func _receive(value: bool) -> void:
 
 
 func set_channel_map(new_map: Dictionary) -> void:
+    print("%s RECEIVED MAP" % name)
     channel_map = new_map
+    notify_property_list_changed()
+
+
+func _sync_channels() -> void:
+    print("%s CALLED SYNC" % name)
+    if is_inside_tree():
+        print("%s IS INSIDE TREE AND CALLING SYNC" % name)
+        get_tree().call_group(DEBUG_GROUP, "add_instance", self)
 
 
 func _load_channel_map() -> void:
-    get_tree().call_group(MAP_GROUP, "request_channel_map")
+    print("%s CALLED LOAD" % name)
+    if is_inside_tree():
+        print("%s IS INSIDE TREE AND CALLING LOAD" % name)
+        get_tree().call_group(MAP_GROUP, "dispatch_channel_map")

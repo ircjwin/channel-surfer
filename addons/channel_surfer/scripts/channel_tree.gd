@@ -4,6 +4,7 @@ extends Tree
 
 
 signal channel_map_changed(changed_map: Dictionary)
+signal channel_edited(new_name: String, old_name: String, parent_name: String)
 
 @export var add_item_icon: Texture2D
 @export var remove_item_icon: Texture2D
@@ -23,7 +24,13 @@ var is_locked: bool = false
 
 ## Consider checks for button click
 
+func _enter_tree() -> void:
+    print("TREE ENTERED TREE")
+    add_to_group(ChannelSurfer.MAP_GROUP)
+
+
 func _ready() -> void:
+    print("TREE CALLED READY")
     item_mouse_selected.connect(_on_item_mouse_selected)
     item_edited.connect(_on_item_edited)
     item_activated.connect(_on_item_activated)
@@ -32,13 +39,24 @@ func _ready() -> void:
     button_clicked.connect(_on_button_clicked)
 
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
     if not is_locked and is_hovering:
         _follow_hover()
 
 
 func get_channel_map() -> Dictionary:
     return channel_map
+
+
+# func check_scene_change(scene_root: Node) -> void:
+#     await scene_root.ready
+#     dispatch_channel_map()
+
+
+func dispatch_channel_map() -> void:
+    print("TREE DISPATCHED MAP")
+    get_tree().call_group(ChannelSurfer.COMPONENT_GROUP, "set_channel_map", channel_map)
+    get_tree().call_group.call_deferred(ChannelSurfer.COMPONENT_GROUP, "notify_property_list_changed")
 
 
 func build_tree(new_map: Dictionary = {}) -> void:
@@ -71,6 +89,7 @@ func _on_button_clicked(item: TreeItem, _column: int, _id: int, mouse_button_ind
             channel_map[parent_text].erase(item_text)
         item.free()
 
+        dispatch_channel_map()
         channel_map_changed.emit(channel_map)
 
 
@@ -117,30 +136,33 @@ func _on_item_activated() -> void:
 func _on_item_edited() -> void:
     var tree_item: TreeItem = get_edited()
     var item_parent: TreeItem = tree_item.get_parent()
-    var new_text: String = tree_item.get_text(FIRST_COLUMN).to_snake_case()
-    if new_text == prev_item_text:
+    var new_item_text: String = tree_item.get_text(FIRST_COLUMN).to_snake_case()
+    if new_item_text == prev_item_text:
         prev_item_text = ""
         return
-    var unique_text: String = _enforce_unique(item_parent, new_text)
-    if unique_text.to_snake_case() != new_text:
+    var unique_text: String = _enforce_unique(item_parent, new_item_text)
+    if unique_text.to_snake_case() != new_item_text:
         # Enforce .capitalize() even if text is already unique
         tree_item.set_text(FIRST_COLUMN, unique_text)
-        new_text = unique_text.to_snake_case()
+        new_item_text = unique_text.to_snake_case()
+    var item_parent_text: String
     if item_parent == get_root():
-        channel_map.set(new_text, channel_map[prev_item_text])
+        channel_map.set(new_item_text, channel_map[prev_item_text])
         channel_map.erase(prev_item_text)
+        item_parent_text = ""
     else:
-        var parent_text: String = item_parent.get_text(FIRST_COLUMN).to_snake_case()
-        channel_map[parent_text] = channel_map[parent_text].map(
+        item_parent_text = item_parent.get_text(FIRST_COLUMN).to_snake_case()
+        channel_map[item_parent_text] = channel_map[item_parent_text].map(
             func(x: String) -> String:
                 if x == prev_item_text:
-                    return new_text
+                    return new_item_text
                 return x
                 )
-    prev_item_text = ""
     tree_item.set_editable(FIRST_COLUMN, false)
 
+    dispatch_channel_map()
     channel_map_changed.emit(channel_map)
+    channel_edited.emit(new_item_text, prev_item_text, item_parent_text)
 
 
 func _on_item_mouse_selected(mouse_position: Vector2, mouse_button_index: int) -> void:
@@ -197,6 +219,7 @@ func _add_tree_item(item_parent: TreeItem, item_index: int, is_main: bool) -> vo
     new_item.set_text(FIRST_COLUMN, channel_text)
     new_item.collapsed = true
 
+    dispatch_channel_map()
     channel_map_changed.emit(channel_map)
 
 

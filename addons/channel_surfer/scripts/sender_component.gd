@@ -13,9 +13,13 @@ var parcel_request: Script
 
 
 func _ready() -> void:
-    _load_channel_map()
+    print("%s CALLED READY" % name)
     if not has_meta(ID_KEY):
-        set_meta(ID_KEY, IDGen.generate())
+        set_meta(ID_KEY, CSUID.generate())
+    # if Engine.is_editor_hint():
+    #     await get_tree().create_timer(1).timeout
+    # _sync_channels()
+    # _load_channel_map()
 
 
 func _get_property_list() -> Array[Dictionary]:

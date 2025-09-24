@@ -18,9 +18,12 @@ const INSTANCE_MAP_PATH: String = "res://addons/channel_surfer/data/instance_map
 
 ## Consider checks for button click
 
-func _ready() -> void:
-    add_to_group(ChannelSurfer.MAP_GROUP)
+func _enter_tree() -> void:
+    print("DOCK ENTERED TREE")
 
+
+func _ready() -> void:
+    print("DOCK CALLED READY")
     channel_debug.hide()
     channel_tree.show()
     lock_button.show()
@@ -32,13 +35,17 @@ func _ready() -> void:
     debug_button.pressed.connect(_on_debug_button_pressed)
     lock_button.pressed.connect(_on_lock_button_pressed)
     channel_tree.channel_map_changed.connect(_on_channel_map_changed)
+    channel_tree.channel_edited.connect(channel_debug.edit_instance)
 
+    print_rich("[color=yellow]DOCK LOADING INSTANCE MAP[/color]")
     var instance_map: Dictionary = _load_instance_map()
     channel_debug.set_instance_map(instance_map)
 
+    print_rich("[color=yellow]DOCK LOADING CHANNEL MAP[/color]")
     var channel_map: Dictionary = _load_channel_map()
     channel_tree.build_tree(channel_map)
     channel_debug.update_alerts(channel_map)
+    print_rich("[color=yellow]DOCK READY[/color]")
 
 
 func _load_instance_map() -> Dictionary:
@@ -46,7 +53,7 @@ func _load_instance_map() -> Dictionary:
         return {}
 
     var file: FileAccess = FileAccess.open(INSTANCE_MAP_PATH, FileAccess.READ)
-    var instance_map: Dictionary = JSON.parse_string(file.get_as_text())
+    var instance_map: Dictionary = JSON.to_native(JSON.parse_string(file.get_as_text()), true)
     file.close()
     return instance_map
 
@@ -56,14 +63,14 @@ func _load_channel_map() -> Dictionary:
         return {}
 
     var file: FileAccess = FileAccess.open(CHANNEL_MAP_PATH, FileAccess.READ)
-    var channel_map: Dictionary = JSON.parse_string(file.get_as_text())
+    var channel_map: Dictionary = JSON.to_native(JSON.parse_string(file.get_as_text()), true)
     file.close()
     return channel_map
 
 
 func _on_instance_map_changed(new_map: Dictionary) -> void:
     var file: FileAccess = FileAccess.open(INSTANCE_MAP_PATH, FileAccess.WRITE)
-    file.store_string(JSON.stringify(new_map))
+    file.store_string(JSON.stringify(JSON.from_native(new_map, true), "\t"))
     file.close()
 
     channel_debug.update_alerts(channel_tree.get_channel_map())
@@ -71,20 +78,10 @@ func _on_instance_map_changed(new_map: Dictionary) -> void:
 
 func _on_channel_map_changed(channel_map: Dictionary) -> void:
     var file: FileAccess = FileAccess.open(CHANNEL_MAP_PATH, FileAccess.WRITE)
-    file.store_string(JSON.stringify(channel_map))
+    file.store_string(JSON.stringify(JSON.from_native(channel_map, true), "\t"))
     file.close()
 
     channel_debug.update_alerts(channel_map)
-    _dispatch_channel_map(channel_map)
-
-
-func request_channel_map() -> void:
-    _dispatch_channel_map(channel_tree.get_channel_map())
-
-
-func _dispatch_channel_map(requested_map: Dictionary) -> void:
-    get_tree().call_group(ChannelSurfer.COMPONENT_GROUP, "set_channel_map", requested_map)
-    get_tree().call_group.call_deferred(ChannelSurfer.COMPONENT_GROUP, "notify_property_list_changed")
 
 
 func _on_lock_button_pressed() -> void:
