@@ -15,12 +15,7 @@ const DEBUG_FONT_COLOR: String = "ff786b"
 
 
 func _enter_tree() -> void:
-    print("DEBUG ENTERED TREE")
     add_to_group(ChannelSurfer.DEBUG_GROUP)
-
-
-func _ready() -> void:
-    print("DEBUG CALLED READY")
 
 
 func has_surfer(filepath: String) -> bool:
@@ -28,8 +23,7 @@ func has_surfer(filepath: String) -> bool:
     return instance_map.has(scene_uid)
 
 
-func check_save(filepath: String) -> void:
-    print(filepath + " WAS SAVED")
+func erase_scene(filepath: String) -> void:
     var scene_uid: String = ResourceUID.path_to_uid(filepath)
     instance_map.erase(scene_uid)
     instance_map_changed.emit(instance_map)
@@ -46,42 +40,42 @@ func edit_instance(new_name: String, old_name: String, parent_name: String) -> v
             if parent_name:
                 if instance_log.main_channel == parent_name and instance_log.sub_channel == old_name:
                     instance_log.sub_channel = new_name
-                    instance_log.update_sub = true
+                    instance_log.is_edited = true
                     is_changed = true
             else:
                 if instance_log.main_channel == old_name:
                     instance_log.main_channel = new_name
-                    instance_log.update_main = true
+                    instance_log.is_edited = true
                     is_changed = true
     if is_changed:
+        get_tree().call_group(ChannelSurfer.COMPONENT_GROUP, "start_sync")
         instance_map_changed.emit(instance_map)
 
 
-func _merge_instance(surfer_node: ChannelSurfer, instance_log: InstanceLog) -> InstanceLog:
-    ## Maybe call this _sync_instance
-    if instance_log.update_main:
+func _sync_instance(surfer_node: ChannelSurfer, instance_log: InstanceLog) -> InstanceLog:
+    instance_log.node_name = surfer_node.name
+
+    if instance_log.is_edited:
         surfer_node.main_channel = instance_log.main_channel
-        instance_log.update_main = false
+        surfer_node.sub_channel = instance_log.sub_channel
+        instance_log.is_edited = false
     else:
         instance_log.main_channel = surfer_node.main_channel
-    if instance_log.update_sub:
-        surfer_node.sub_channel = instance_log.sub_channel
-        instance_log.update_sub = false
-    else:
         instance_log.sub_channel = surfer_node.sub_channel
-    instance_log.node_name = surfer_node.name
+
+    surfer_node.end_sync()
+
     return instance_log
 
 
 func add_instance(surfer_node: ChannelSurfer) -> void:
-    print("DEBUG RECEIVED REQUEST")
     if surfer_node.has_meta(ChannelSurfer.ID_KEY):
         var root_scene_path: String = surfer_node.owner.scene_file_path
         var root_scene_uid: String = ResourceUID.path_to_uid(root_scene_path)
         var surfer_uid: String = surfer_node.get_meta(ChannelSurfer.ID_KEY)
         var scene_dict: Dictionary = instance_map.get_or_add(root_scene_uid, {})
         var instance_log: InstanceLog = scene_dict.get_or_add(surfer_uid, InstanceLog.new())
-        scene_dict[surfer_uid] = _merge_instance(surfer_node, instance_log)
+        scene_dict[surfer_uid] = _sync_instance(surfer_node, instance_log)
 
         instance_map_changed.emit(instance_map)
 

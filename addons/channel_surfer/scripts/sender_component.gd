@@ -12,16 +12,6 @@ var parcel: Resource
 var parcel_request: Script
 
 
-func _ready() -> void:
-    print("%s CALLED READY" % name)
-    if not has_meta(ID_KEY):
-        set_meta(ID_KEY, CSUID.generate())
-    # if Engine.is_editor_hint():
-    #     await get_tree().create_timer(1).timeout
-    # _sync_channels()
-    # _load_channel_map()
-
-
 func _get_property_list() -> Array[Dictionary]:
     var properties: Array[Dictionary] = []
     properties.append({

@@ -16,14 +16,8 @@ extends Control
 const CHANNEL_MAP_PATH: String = "res://addons/channel_surfer/data/channel_map.json"
 const INSTANCE_MAP_PATH: String = "res://addons/channel_surfer/data/instance_map.json"
 
-## Consider checks for button click
-
-func _enter_tree() -> void:
-    print("DOCK ENTERED TREE")
-
 
 func _ready() -> void:
-    print("DOCK CALLED READY")
     channel_debug.hide()
     channel_tree.show()
     lock_button.show()
@@ -37,15 +31,12 @@ func _ready() -> void:
     channel_tree.channel_map_changed.connect(_on_channel_map_changed)
     channel_tree.channel_edited.connect(channel_debug.edit_instance)
 
-    print_rich("[color=yellow]DOCK LOADING INSTANCE MAP[/color]")
     var instance_map: Dictionary = _load_instance_map()
     channel_debug.set_instance_map(instance_map)
 
-    print_rich("[color=yellow]DOCK LOADING CHANNEL MAP[/color]")
     var channel_map: Dictionary = _load_channel_map()
     channel_tree.build_tree(channel_map)
     channel_debug.update_alerts(channel_map)
-    print_rich("[color=yellow]DOCK READY[/color]")
 
 
 func _load_instance_map() -> Dictionary:
