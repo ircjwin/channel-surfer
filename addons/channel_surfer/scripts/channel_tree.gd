@@ -9,6 +9,8 @@ signal channel_edited(new_name: String, old_name: String, parent_name: String)
 @export var add_item_icon: Texture2D
 @export var remove_item_icon: Texture2D
 
+@onready var cs_config: CSConfig = preload("res://addons/channel_surfer/data/cs_config.tres")
+
 const NEW_CHANNEL_TEXT: String = "new_channel"
 const ADD_MAIN_TEXT: String = "New Main..."
 const ADD_SUB_TEXT: String = "New Sub..."
@@ -20,7 +22,7 @@ var channel_map: Dictionary = {}
 var prev_item_text: String = ""
 var prev_hovered_item: TreeItem = null
 var is_hovering: bool = false
-var is_locked: bool = false
+var is_locked: bool: get = _get_is_locked, set = _set_is_locked
 
 
 func _enter_tree() -> void:
@@ -49,6 +51,15 @@ func dispatch_channel_map() -> void:
     get_tree().call_group_flags(
         SceneTree.GROUP_CALL_DEFERRED | SceneTree.GROUP_CALL_UNIQUE,
         ChannelSurfer.COMPONENT_GROUP, "set_channel_map", channel_map)
+
+
+func _get_is_locked() -> bool:
+    return cs_config.is_channel_locked
+
+
+func _set_is_locked(value: bool) -> void:
+    cs_config.is_channel_locked = value
+    ResourceSaver.save(cs_config)
 
 
 func build_tree(new_map: Dictionary = {}) -> void:

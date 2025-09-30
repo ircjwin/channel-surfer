@@ -38,6 +38,8 @@ func _ready() -> void:
     channel_tree.build_tree(channel_map)
     channel_debug.update_alerts(channel_map)
 
+    _set_lock_button_icon(channel_tree.is_locked)
+
 
 func _load_instance_map() -> Dictionary:
     if not FileAccess.file_exists(INSTANCE_MAP_PATH):
@@ -78,7 +80,12 @@ func _on_channel_map_changed(channel_map: Dictionary) -> void:
 func _on_lock_button_pressed() -> void:
     channel_tree.is_locked = not channel_tree.is_locked
     channel_tree.build_tree()
-    if channel_tree.is_locked:
+
+    _set_lock_button_icon(channel_tree.is_locked)
+
+
+func _set_lock_button_icon(is_locked: bool) -> void:
+    if is_locked:
         lock_button.icon = locked_icon
     else:
         lock_button.icon = unlocked_icon

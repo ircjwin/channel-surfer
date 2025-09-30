@@ -1,11 +1,13 @@
 @tool
 class_name ChannelDebug
-extends RichTextLabel
+extends Tree
 
 
 signal alerts_cleared
 signal alerts_filled
 signal instance_map_changed(changed_map: Dictionary)
+
+@export var nav_button: Texture2D
 
 var instance_map: Dictionary
 var removal_queue: Dictionary
@@ -16,6 +18,17 @@ const DEBUG_FONT_COLOR: String = "ff786b"
 
 func _enter_tree() -> void:
     add_to_group(ChannelSurfer.DEBUG_GROUP)
+
+
+func _ready() -> void:
+    hide_root = true
+
+    button_clicked.connect(_on_button_clicked)
+
+
+func _on_button_clicked(item: TreeItem, _column: int, _id: int, mouse_button_index: int) -> void:
+    if mouse_button_index == MOUSE_BUTTON_LEFT:
+        EditorInterface.open_scene_from_path(item.get_text(0))
 
 
 func has_surfer(filepath: String) -> bool:
@@ -83,6 +96,8 @@ func add_instance(surfer_node: ChannelSurfer) -> void:
 func update_alerts(channel_map: Dictionary) -> void:
     clear()
     var alert_found: bool = false
+    var debug_root: TreeItem
+    var current_scene: TreeItem
 
     for scene_uid: String in instance_map.keys():
         var scene_header_added: bool = false
@@ -93,16 +108,23 @@ func update_alerts(channel_map: Dictionary) -> void:
                 if sub_channel == ChannelSurfer.CHANNEL_PLACEHOLDER or channel_map[main_channel].has(sub_channel):
                     continue
 
-            alert_found = true
+            if not alert_found:
+                debug_root = create_item()
+                alert_found = true
 
             if not scene_header_added:
                 var scene_name: String = ResourceUID.uid_to_path(scene_uid)
-                add_text("%s\n" % scene_name)
+                current_scene = create_item(debug_root)
+                current_scene.set_text(0, scene_name)
+                current_scene.collapsed = true
+                current_scene.add_button(0, nav_button)
                 scene_header_added = true
 
-            add_text("\t\tNODE:\t\t%s\n" % instance_log.node_name)
-            add_text("\t\tMAIN:\t\t%s\n" % instance_log.main_channel.capitalize())
-            add_text("\t\tSUB:\t\t%s\n\n" % instance_log.sub_channel.capitalize())
+            var node_name: String = "NODE:  %s\n" % instance_log.node_name
+            var node_main: String = "MAIN:   %s\n" % instance_log.main_channel.capitalize()
+            var node_sub: String =  "SUB:      %s\n" % instance_log.sub_channel.capitalize()
+            var new_node: TreeItem = create_item(current_scene)
+            new_node.set_text(0, node_name + node_main + node_sub)
 
     if alert_found:
         alerts_filled.emit()
