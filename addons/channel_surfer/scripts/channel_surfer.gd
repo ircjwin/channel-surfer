@@ -1,4 +1,5 @@
 @tool
+@icon("res://addons/channel_surfer/assets/surfer_icon_1.png")
 class_name ChannelSurfer
 extends Node
 
@@ -16,10 +17,11 @@ var sub_channel: String = CHANNEL_PLACEHOLDER: set = _set_sub_channel
 var main_channel_group: String = "": set = _set_main_channel_group
 var sub_channel_group: String = "": set = _set_sub_channel_group
 var _is_recipient: bool = false
-var _has_connected = false
+var _is_synced = false
 
 
 func _enter_tree() -> void:
+    print("%s ENTERED TREE" % name)
     if not is_in_group(COMPONENT_GROUP):
         add_to_group(COMPONENT_GROUP)
     if not has_meta(ID_KEY):
@@ -27,8 +29,18 @@ func _enter_tree() -> void:
     channel_map = {}
 
 
+# func _ready() -> void:
+#     if  not _is_synced:
+#         print("%s TRIED TO SYNC ON READY" % name)
+#         _sync_channels()
+
+#         if Engine.is_editor_hint():
+#             _load_channel_map()
+
+
 func _exit_tree() -> void:
-    _has_connected = false
+    print("%s EXITED TREE" % name)
+    _is_synced = false
 
 
 func _notification(what: int) -> void:
@@ -37,11 +49,10 @@ func _notification(what: int) -> void:
 
 
 func _process(delta: float) -> void:
-    if  not _has_connected:
+    if Engine.is_editor_hint() and not _is_synced:
+        print("%s HAD TO CALL SYNC ON PROCESS" % name)
         _sync_channels()
-
-        if Engine.is_editor_hint():
-            _load_channel_map()
+        _load_channel_map()
 
 
 func _get_property_list() -> Array[Dictionary]:
@@ -163,8 +174,9 @@ func _load_channel_map() -> void:
 
 
 func start_sync() -> void:
-    _has_connected = false
+    _is_synced = false
 
 
 func end_sync() -> void:
-    _has_connected = true
+    print("%s HAS SYNCED" % name)
+    _is_synced = true

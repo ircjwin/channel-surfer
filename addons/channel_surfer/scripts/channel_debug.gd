@@ -61,8 +61,18 @@ func edit_instance(new_name: String, old_name: String, parent_name: String) -> v
                     instance_log.is_edited = true
                     is_changed = true
     if is_changed:
-        get_tree().call_group(ChannelSurfer.COMPONENT_GROUP, "start_sync")
         instance_map_changed.emit(instance_map)
+
+        for scene_uid: String in instance_map.keys():
+            var scene_path: String = ResourceUID.uid_to_path(scene_uid)
+            print("\nLOADING SCENE: %s" % scene_path)
+            EditorInterface.open_scene_from_path(scene_path)
+            await get_tree().process_frame
+            await get_tree().process_frame
+            EditorInterface.save_scene()
+            await get_tree().process_frame
+            EditorInterface.close_scene()
+        # get_tree().call_group(ChannelSurfer.COMPONENT_GROUP, "start_sync")
 
 
 func _sync_instance(surfer_node: ChannelSurfer, instance_log: InstanceLog) -> InstanceLog:
@@ -82,6 +92,7 @@ func _sync_instance(surfer_node: ChannelSurfer, instance_log: InstanceLog) -> In
 
 
 func add_instance(surfer_node: ChannelSurfer) -> void:
+    print("%s WAS RECEIVED BY DEBUG" % surfer_node.name)
     if surfer_node.has_meta(ChannelSurfer.ID_KEY):
         var root_scene_path: String = surfer_node.owner.scene_file_path
         var root_scene_uid: String = ResourceUID.path_to_uid(root_scene_path)

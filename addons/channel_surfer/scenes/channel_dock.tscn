@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://b11jfnrqpx205"]
+[gd_scene load_steps=14 format=3 uid="uid://b11jfnrqpx205"]
 
 [ext_resource type="Script" uid="uid://dnxyonvfbv0xo" path="res://addons/channel_surfer/scripts/channel_dock.gd" id="1_t706h"]
 [ext_resource type="Texture2D" uid="uid://dgpg0vkof5usy" path="res://addons/channel_surfer/assets/debug_icon.png" id="2_7qho6"]
@@ -12,6 +12,7 @@
 [ext_resource type="Texture2D" uid="uid://be25vlrrme5xi" path="res://addons/channel_surfer/assets/item_create_icon.png" id="10_05c2w"]
 [ext_resource type="Texture2D" uid="uid://0tgeu4yftsm2" path="res://addons/channel_surfer/assets/item_remove_icon.png" id="11_nps6d"]
 [ext_resource type="Script" uid="uid://bbbqt2g1m1xka" path="res://addons/channel_surfer/scripts/channel_debug.gd" id="12_yodnt"]
+[ext_resource type="Texture2D" uid="uid://cbqw1pa0vm3wr" path="res://addons/channel_surfer/assets/settings_icon.png" id="13_7qho6"]
 
 [node name="Waves" type="Control"]
 layout_mode = 3
@@ -49,7 +50,7 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Debug"
-icon = ExtResource("3_n3fpa")
+icon = ExtResource("2_7qho6")
 
 [node name="ChannelTree" type="Tree" parent="VBoxContainer"]
 unique_name_in_owner = true
@@ -76,7 +77,17 @@ hide_root = true
 script = ExtResource("12_yodnt")
 nav_button = ExtResource("8_x2hjt")
 
-[node name="LockButton" type="Button" parent="VBoxContainer"]
+[node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+alignment = 2
+
+[node name="GearButton" type="Button" parent="VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 8
+icon = ExtResource("13_7qho6")
+
+[node name="LockButton" type="Button" parent="VBoxContainer/HBoxContainer2"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 8

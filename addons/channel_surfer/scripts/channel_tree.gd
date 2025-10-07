@@ -23,6 +23,7 @@ var prev_item_text: String = ""
 var prev_hovered_item: TreeItem = null
 var is_hovering: bool = false
 var is_locked: bool: get = _get_is_locked, set = _set_is_locked
+var collapsed_items: Array[bool]
 
 
 func _enter_tree() -> void:
@@ -69,6 +70,10 @@ func build_tree(new_map: Dictionary = {}) -> void:
 
     if not new_map.is_empty():
         channel_map = new_map
+
+    if not collapsed_items:
+        for main: String in channel_map.keys():
+            collapsed_items.append(true)
 
     for main_channel: String in channel_map:
         var new_child = create_item(root)

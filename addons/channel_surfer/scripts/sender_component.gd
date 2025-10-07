@@ -1,4 +1,5 @@
 @tool
+@icon("res://addons/channel_surfer/assets/sender_icon_5.png")
 class_name SenderComponent
 extends ChannelSurfer
 
