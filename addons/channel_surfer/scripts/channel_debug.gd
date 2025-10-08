@@ -9,9 +9,9 @@ signal instance_map_changed(changed_map: Dictionary)
 
 @export var nav_button: Texture2D
 
+@onready var cs_config: CSConfig = preload("res://addons/channel_surfer/data/cs_config.tres")
+
 var instance_map: Dictionary
-var removal_queue: Dictionary
-var editor_closing: bool = false
 
 const DEBUG_FONT_COLOR: String = "ff786b"
 
@@ -22,7 +22,6 @@ func _enter_tree() -> void:
 
 func _ready() -> void:
     hide_root = true
-
     button_clicked.connect(_on_button_clicked)
 
 
@@ -46,35 +45,6 @@ func set_instance_map(new_map: Dictionary) -> void:
     instance_map = new_map
 
 
-func edit_instance(new_name: String, old_name: String, parent_name: String) -> void:
-    var is_changed: bool = false
-    for scene_dict: Dictionary in instance_map.values():
-        for instance_log: InstanceLog in scene_dict.values():
-            if parent_name:
-                if instance_log.main_channel == parent_name and instance_log.sub_channel == old_name:
-                    instance_log.sub_channel = new_name
-                    instance_log.is_edited = true
-                    is_changed = true
-            else:
-                if instance_log.main_channel == old_name:
-                    instance_log.main_channel = new_name
-                    instance_log.is_edited = true
-                    is_changed = true
-    if is_changed:
-        instance_map_changed.emit(instance_map)
-
-        for scene_uid: String in instance_map.keys():
-            var scene_path: String = ResourceUID.uid_to_path(scene_uid)
-            print("\nLOADING SCENE: %s" % scene_path)
-            EditorInterface.open_scene_from_path(scene_path)
-            await get_tree().process_frame
-            await get_tree().process_frame
-            EditorInterface.save_scene()
-            await get_tree().process_frame
-            EditorInterface.close_scene()
-        # get_tree().call_group(ChannelSurfer.COMPONENT_GROUP, "start_sync")
-
-
 func _sync_instance(surfer_node: ChannelSurfer, instance_log: InstanceLog) -> InstanceLog:
     instance_log.node_name = surfer_node.name
 
@@ -92,7 +62,6 @@ func _sync_instance(surfer_node: ChannelSurfer, instance_log: InstanceLog) -> In
 
 
 func add_instance(surfer_node: ChannelSurfer) -> void:
-    print("%s WAS RECEIVED BY DEBUG" % surfer_node.name)
     if surfer_node.has_meta(ChannelSurfer.ID_KEY):
         var root_scene_path: String = surfer_node.owner.scene_file_path
         var root_scene_uid: String = ResourceUID.path_to_uid(root_scene_path)
@@ -102,6 +71,45 @@ func add_instance(surfer_node: ChannelSurfer) -> void:
         scene_dict[surfer_uid] = _sync_instance(surfer_node, instance_log)
 
         instance_map_changed.emit(instance_map)
+
+
+func _get_edited_scenes(current_text: String, prev_text: String, parent_text: String) -> Array:
+    var edited_scenes: Array = []
+
+    for scene_uid: String in instance_map.keys():
+        var is_scene_edited: bool = false
+
+        for instance_log: InstanceLog in instance_map[scene_uid].values():
+
+            if parent_text.is_empty() and instance_log.main_channel == prev_text:
+                instance_log.main_channel = current_text
+            elif instance_log.main_channel == parent_text and instance_log.sub_channel == prev_text:
+                instance_log.sub_channel = current_text
+            else:
+                continue
+
+            instance_log.is_edited = true
+            is_scene_edited = true
+
+        if is_scene_edited:
+            edited_scenes.append(scene_uid)
+
+    return edited_scenes
+
+
+func dispatch_channel_edits(current_text: String, prev_text: String, parent_text: String) -> void:
+    var edited_scenes: Array = _get_edited_scenes(current_text, prev_text, parent_text)
+
+    for scene_uid: String in edited_scenes:
+        var scene_path: String = ResourceUID.uid_to_path(scene_uid)
+        var is_open: bool = EditorInterface.get_open_scenes().has(scene_path)
+        EditorInterface.open_scene_from_path(scene_path)
+        await get_tree().process_frame
+        await get_tree().process_frame
+        EditorInterface.save_scene()
+        await get_tree().process_frame
+        if not is_open:
+            EditorInterface.close_scene()
 
 
 func update_alerts(channel_map: Dictionary) -> void:

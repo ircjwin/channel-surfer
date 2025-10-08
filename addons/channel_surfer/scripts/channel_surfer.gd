@@ -1,5 +1,5 @@
 @tool
-@icon("res://addons/channel_surfer/assets/surfer_icon_1.png")
+@icon("res://addons/channel_surfer/assets/surfer_icon.png")
 class_name ChannelSurfer
 extends Node
 
@@ -21,7 +21,6 @@ var _is_synced = false
 
 
 func _enter_tree() -> void:
-    print("%s ENTERED TREE" % name)
     if not is_in_group(COMPONENT_GROUP):
         add_to_group(COMPONENT_GROUP)
     if not has_meta(ID_KEY):
@@ -29,17 +28,7 @@ func _enter_tree() -> void:
     channel_map = {}
 
 
-# func _ready() -> void:
-#     if  not _is_synced:
-#         print("%s TRIED TO SYNC ON READY" % name)
-#         _sync_channels()
-
-#         if Engine.is_editor_hint():
-#             _load_channel_map()
-
-
 func _exit_tree() -> void:
-    print("%s EXITED TREE" % name)
     _is_synced = false
 
 
@@ -50,7 +39,6 @@ func _notification(what: int) -> void:
 
 func _process(delta: float) -> void:
     if Engine.is_editor_hint() and not _is_synced:
-        print("%s HAD TO CALL SYNC ON PROCESS" % name)
         _sync_channels()
         _load_channel_map()
 
@@ -98,13 +86,13 @@ func _set(property: StringName, value: Variant) -> bool:
     if property == "main":
         main_channel = value.to_snake_case()
         sub_channel = CHANNEL_PLACEHOLDER
-        _sync_channels()
-        return true
-    if property == "sub":
+    elif property == "sub":
         sub_channel = value.to_snake_case()
-        _sync_channels()
-        return true
-    return false
+    else:
+        return false
+
+    _sync_channels()
+    return true
 
 
 func _get_most_precise() -> String:
@@ -164,13 +152,11 @@ func set_channel_map(new_map: Dictionary) -> void:
 
 
 func _sync_channels() -> void:
-    if is_inside_tree():
-        get_tree().call_group(DEBUG_GROUP, "add_instance", self)
+    get_tree().call_group(DEBUG_GROUP, "add_instance", self)
 
 
 func _load_channel_map() -> void:
-    if is_inside_tree():
-        get_tree().call_group(MAP_GROUP, "dispatch_channel_map")
+    get_tree().call_group(MAP_GROUP, "dispatch_channel_map")
 
 
 func start_sync() -> void:
@@ -178,5 +164,4 @@ func start_sync() -> void:
 
 
 func end_sync() -> void:
-    print("%s HAS SYNCED" % name)
     _is_synced = true

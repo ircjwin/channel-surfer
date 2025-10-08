@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://b11jfnrqpx205"]
+[gd_scene load_steps=15 format=3 uid="uid://b11jfnrqpx205"]
 
 [ext_resource type="Script" uid="uid://dnxyonvfbv0xo" path="res://addons/channel_surfer/scripts/channel_dock.gd" id="1_t706h"]
 [ext_resource type="Texture2D" uid="uid://dgpg0vkof5usy" path="res://addons/channel_surfer/assets/debug_icon.png" id="2_7qho6"]
@@ -13,6 +13,7 @@
 [ext_resource type="Texture2D" uid="uid://0tgeu4yftsm2" path="res://addons/channel_surfer/assets/item_remove_icon.png" id="11_nps6d"]
 [ext_resource type="Script" uid="uid://bbbqt2g1m1xka" path="res://addons/channel_surfer/scripts/channel_debug.gd" id="12_yodnt"]
 [ext_resource type="Texture2D" uid="uid://cbqw1pa0vm3wr" path="res://addons/channel_surfer/assets/settings_icon.png" id="13_7qho6"]
+[ext_resource type="Script" uid="uid://c30txb8uqumcx" path="res://addons/channel_surfer/scripts/channel_settings.gd" id="13_n3fpa"]
 
 [node name="Waves" type="Control"]
 layout_mode = 3
@@ -77,11 +78,32 @@ hide_root = true
 script = ExtResource("12_yodnt")
 nav_button = ExtResource("8_x2hjt")
 
+[node name="ChannelSettings" type="VBoxContainer" parent="VBoxContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+script = ExtResource("13_n3fpa")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/ChannelSettings"]
+layout_mode = 2
+
+[node name="AutoUpdateCheckBox" type="CheckBox" parent="VBoxContainer/ChannelSettings/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+button_pressed = true
+
+[node name="AutoUpdateLabel" type="Label" parent="VBoxContainer/ChannelSettings/HBoxContainer"]
+layout_mode = 2
+text = "Auto update channel edits"
+
 [node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
 alignment = 2
 
-[node name="GearButton" type="Button" parent="VBoxContainer/HBoxContainer2"]
+[node name="SettingsButton" type="Button" parent="VBoxContainer/HBoxContainer2"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 8

@@ -1,5 +1,5 @@
 @tool
-@icon("res://addons/channel_surfer/assets/receiver_icon_4.png")
+@icon("res://addons/channel_surfer/assets/receiver_icon.png")
 class_name ReceiverComponent
 extends ChannelSurfer
 

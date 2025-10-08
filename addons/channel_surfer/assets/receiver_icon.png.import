@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ben5afbxwpnq2"
-path="res://.godot/imported/sender_icon_5.png-7173a6d04e64641b72e97d0b4fac45e6.ctex"
+uid="uid://b3t02w6itxi1h"
+path="res://.godot/imported/receiver_icon.png-2f5a4e9e8fe53948756f3116902e2914.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/channel_surfer/assets/sender_icon_5.png"
-dest_files=["res://.godot/imported/sender_icon_5.png-7173a6d04e64641b72e97d0b4fac45e6.ctex"]
+source_file="res://addons/channel_surfer/assets/receiver_icon.png"
+dest_files=["res://.godot/imported/receiver_icon.png-2f5a4e9e8fe53948756f3116902e2914.ctex"]
 
 [params]
 
