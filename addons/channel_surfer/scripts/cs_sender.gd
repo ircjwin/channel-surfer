@@ -1,6 +1,6 @@
 @tool
 @icon("res://addons/channel_surfer/assets/sender_icon.png")
-class_name SenderComponent
+class_name CSSender
 extends ChannelSurfer
 
 

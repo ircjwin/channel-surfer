@@ -4,12 +4,14 @@ class_name ChannelSurfer
 extends Node
 
 
-const CHANNEL_PREFIX: String = "secure_channel"
+const DEV_CHANNEL_PREFIX: String = "cs_dev"
+const USER_CHANNEL_PREFIX: String = "cs_user"
+const COMPONENT_GROUP: String = DEV_CHANNEL_PREFIX + "_component"
+const DEBUG_GROUP: String = DEV_CHANNEL_PREFIX + "_debug"
+const MAP_GROUP: String = DEV_CHANNEL_PREFIX + "_map"
 const CHANNEL_PLACEHOLDER: String = "none"
-const COMPONENT_GROUP: String = "channel_surfer_component"
-const DEBUG_GROUP: String = "channel_surfer_debug"
-const MAP_GROUP: String = "channel_surfer_map"
-const ID_KEY: String = "cs_uid"
+const ID_KEY: String = "csuid"
+const TEMP_DATA_PATH: String = "res://addons/channel_surfer/data/temp/"
 
 var channel_map: Dictionary
 var main_channel: String = CHANNEL_PLACEHOLDER: set = _set_main_channel
@@ -23,23 +25,43 @@ var _is_synced = false
 func _enter_tree() -> void:
     if not is_in_group(COMPONENT_GROUP):
         add_to_group(COMPONENT_GROUP)
+
     if not has_meta(ID_KEY):
         set_meta(ID_KEY, CSUID.generate())
+
     channel_map = {}
-
-
-func _exit_tree() -> void:
-    _is_synced = false
+    start_sync()
 
 
 func _notification(what: int) -> void:
-    if what == NOTIFICATION_EDITOR_POST_SAVE:
-        _sync_channels()
+    if is_inside_tree():
+        if what == NOTIFICATION_EDITOR_PRE_SAVE or what == NOTIFICATION_EDITOR_POST_SAVE:
+            _sync_channels()
+    else:
+        if what == NOTIFICATION_EDITOR_PRE_SAVE:
+            ## 'res://' and other non-absolute paths may cause errors in exported projects
+            var temp_dir: DirAccess = DirAccess.open("res://")
+            if not temp_dir.dir_exists(TEMP_DATA_PATH):
+                temp_dir.make_dir(TEMP_DATA_PATH)
+
+            var cs_uid: String = get_meta(ID_KEY)
+            var scene_uid: String = ResourceUID.path_to_uid(owner.scene_file_path)
+            var temp_instance_log: TempInstanceLog = TempInstanceLog.new()
+
+            temp_instance_log.scene_uid = scene_uid
+            temp_instance_log.cs_uid = cs_uid
+            temp_instance_log.node_name = name
+            temp_instance_log.main_channel = main_channel
+            temp_instance_log.sub_channel = sub_channel
+
+            var f: FileAccess = FileAccess.open(TEMP_DATA_PATH + cs_uid, FileAccess.WRITE)
+            if f.is_open():
+                f.store_string(JSON.stringify(JSON.from_native(temp_instance_log, true)))
+                f.close()
 
 
 func _process(delta: float) -> void:
     if Engine.is_editor_hint() and not _is_synced:
-        _sync_channels()
         _load_channel_map()
 
 
@@ -90,8 +112,6 @@ func _set(property: StringName, value: Variant) -> bool:
         sub_channel = value.to_snake_case()
     else:
         return false
-
-    _sync_channels()
     return true
 
 
@@ -104,7 +124,7 @@ func _set_main_channel(value: String) -> void:
     if main_channel == CHANNEL_PLACEHOLDER:
         main_channel_group = ""
     else:
-        main_channel_group = CHANNEL_PREFIX + "_" + main_channel
+        main_channel_group = USER_CHANNEL_PREFIX + "_" + main_channel
     notify_property_list_changed()
 
 
@@ -148,15 +168,18 @@ func _receive(value: bool) -> void:
 
 func set_channel_map(new_map: Dictionary) -> void:
     channel_map = new_map
+    end_sync()
     notify_property_list_changed()
 
 
 func _sync_channels() -> void:
-    get_tree().call_group(DEBUG_GROUP, "add_instance", self)
+    if is_inside_tree():
+        get_tree().call_group(DEBUG_GROUP, "add_instance", self)
 
 
 func _load_channel_map() -> void:
-    get_tree().call_group(MAP_GROUP, "dispatch_channel_map")
+    if is_inside_tree():
+        get_tree().call_group(MAP_GROUP, "dispatch_channel_map")
 
 
 func start_sync() -> void:

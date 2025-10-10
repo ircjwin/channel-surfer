@@ -2,8 +2,8 @@ class_name CSUID
 extends Resource
 
 
-const UID_SIZE: int = 6
-const UID_PREFIX: String = "csuid://"
+const UID_SIZE: int = 8
+const UID_PREFIX: String = "csuid_"
 const ASCII_INTEGER_0: int = 48
 const ASCII_INTEGER_9: int = 57
 const ASCII_UPPERCASE_A: int = 65

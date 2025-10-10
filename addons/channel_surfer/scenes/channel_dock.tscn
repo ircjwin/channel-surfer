@@ -6,8 +6,8 @@
 [ext_resource type="Texture2D" uid="uid://bm08ef48qfy7v" path="res://addons/channel_surfer/assets/locked_icon.png" id="4_l30ru"]
 [ext_resource type="Texture2D" uid="uid://b61sh7ngcyi8y" path="res://addons/channel_surfer/assets/unlocked_icon.png" id="5_0xcfh"]
 [ext_resource type="Texture2D" uid="uid://vc3v02y8u6u0" path="res://addons/channel_surfer/assets/channel_icon.png" id="6_uu6rb"]
-[ext_resource type="Texture2D" uid="uid://bsu6x77fkrvwl" path="res://addons/channel_surfer/assets/arrow_collapsed_icon.png" id="7_sa46k"]
-[ext_resource type="Texture2D" uid="uid://dwv00nqrkul7d" path="res://addons/channel_surfer/assets/arrow_icon.png" id="8_x2hjt"]
+[ext_resource type="Texture2D" uid="uid://bsu6x77fkrvwl" path="res://addons/channel_surfer/assets/arrow_icon.png" id="7_sa46k"]
+[ext_resource type="Texture2D" uid="uid://dwv00nqrkul7d" path="res://addons/channel_surfer/assets/arrow_collapsed_icon.png" id="8_x2hjt"]
 [ext_resource type="Script" uid="uid://cfsyxh23qvyrx" path="res://addons/channel_surfer/scripts/channel_tree.gd" id="9_sycqf"]
 [ext_resource type="Texture2D" uid="uid://be25vlrrme5xi" path="res://addons/channel_surfer/assets/item_create_icon.png" id="10_05c2w"]
 [ext_resource type="Texture2D" uid="uid://0tgeu4yftsm2" path="res://addons/channel_surfer/assets/item_remove_icon.png" id="11_nps6d"]
@@ -72,8 +72,8 @@ unique_name_in_owner = true
 visible = false
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/draw_guides = 1
-theme_override_constants/draw_relationship_lines = 0
+theme_override_icons/arrow = ExtResource("7_sa46k")
+theme_override_icons/arrow_collapsed = ExtResource("8_x2hjt")
 hide_root = true
 script = ExtResource("12_yodnt")
 nav_button = ExtResource("8_x2hjt")

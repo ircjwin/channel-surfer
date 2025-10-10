@@ -1,6 +1,6 @@
 @tool
 @icon("res://addons/channel_surfer/assets/receiver_icon.png")
-class_name ReceiverComponent
+class_name CSReceiver
 extends ChannelSurfer
 
 

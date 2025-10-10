@@ -11,9 +11,10 @@ signal instance_map_changed(changed_map: Dictionary)
 
 @onready var cs_config: CSConfig = preload("res://addons/channel_surfer/data/cs_config.tres")
 
-var instance_map: Dictionary
-
 const DEBUG_FONT_COLOR: String = "ff786b"
+
+var instance_map: Dictionary
+var is_dispatching_edits: bool = false
 
 
 func _enter_tree() -> void:
@@ -35,10 +36,42 @@ func has_surfer(filepath: String) -> bool:
     return instance_map.has(scene_uid)
 
 
-func erase_scene(filepath: String) -> void:
+func resolve_save_conflict(filepath: String) -> void:
+    if is_dispatching_edits:
+        return
+
     var scene_uid: String = ResourceUID.path_to_uid(filepath)
     instance_map.erase(scene_uid)
+    var temp_dir: DirAccess = DirAccess.open(ChannelSurfer.TEMP_DATA_PATH)
+    if temp_dir:
+        for temp_filename: String in temp_dir.get_files():
+            var temp_filepath: String = ChannelSurfer.TEMP_DATA_PATH + temp_filename
+            var f: FileAccess = FileAccess.open(temp_filepath, FileAccess.READ)
+            var temp_instance_log: TempInstanceLog = JSON.to_native(JSON.parse_string(f.get_as_text()), true)
+            f.close()
+
+            if temp_instance_log.scene_uid == scene_uid:
+                var instance_log: InstanceLog = InstanceLog.new()
+                instance_log.node_name = temp_instance_log.node_name
+                instance_log.main_channel = temp_instance_log.main_channel
+                instance_log.sub_channel = temp_instance_log.sub_channel
+                var scene_dict: Dictionary = instance_map.get_or_add(temp_instance_log.scene_uid, {})
+                scene_dict[temp_instance_log.cs_uid] = instance_log
+                temp_dir.remove(temp_filepath)
+
     instance_map_changed.emit(instance_map)
+
+
+func resolve_delete_conflict(filepath: String) -> void:
+    print("FILE REMOVED: %s" % filepath)
+    if filepath.ends_with(".tscn"):
+        for scene_uid: String in instance_map.keys():
+            var int_uid: int = ResourceUID.text_to_id(scene_uid)
+            if ResourceUID.has_id(int_uid) and filepath == ResourceUID.get_id_path(int_uid):
+                print("CACHE HAD THIS PATH: %s" % ResourceUID.get_id_path(int_uid))
+                instance_map.erase(scene_uid)
+                instance_map_changed.emit(instance_map)
+                break
 
 
 func set_instance_map(new_map: Dictionary) -> void:
@@ -56,21 +89,22 @@ func _sync_instance(surfer_node: ChannelSurfer, instance_log: InstanceLog) -> In
         instance_log.main_channel = surfer_node.main_channel
         instance_log.sub_channel = surfer_node.sub_channel
 
-    surfer_node.end_sync()
-
     return instance_log
 
 
 func add_instance(surfer_node: ChannelSurfer) -> void:
     if surfer_node.has_meta(ChannelSurfer.ID_KEY):
         var root_scene_path: String = surfer_node.owner.scene_file_path
+        if root_scene_path.is_empty():
+            return
+
         var root_scene_uid: String = ResourceUID.path_to_uid(root_scene_path)
         var surfer_uid: String = surfer_node.get_meta(ChannelSurfer.ID_KEY)
         var scene_dict: Dictionary = instance_map.get_or_add(root_scene_uid, {})
         var instance_log: InstanceLog = scene_dict.get_or_add(surfer_uid, InstanceLog.new())
         scene_dict[surfer_uid] = _sync_instance(surfer_node, instance_log)
 
-        instance_map_changed.emit(instance_map)
+    instance_map_changed.emit(instance_map)
 
 
 func _get_edited_scenes(current_text: String, prev_text: String, parent_text: String) -> Array:
@@ -98,8 +132,9 @@ func _get_edited_scenes(current_text: String, prev_text: String, parent_text: St
 
 
 func dispatch_channel_edits(current_text: String, prev_text: String, parent_text: String) -> void:
-    var edited_scenes: Array = _get_edited_scenes(current_text, prev_text, parent_text)
+    is_dispatching_edits = true
 
+    var edited_scenes: Array = _get_edited_scenes(current_text, prev_text, parent_text)
     for scene_uid: String in edited_scenes:
         var scene_path: String = ResourceUID.uid_to_path(scene_uid)
         var is_open: bool = EditorInterface.get_open_scenes().has(scene_path)
@@ -110,6 +145,8 @@ func dispatch_channel_edits(current_text: String, prev_text: String, parent_text
         await get_tree().process_frame
         if not is_open:
             EditorInterface.close_scene()
+
+    is_dispatching_edits = false
 
 
 func update_alerts(channel_map: Dictionary) -> void:
@@ -139,9 +176,9 @@ func update_alerts(channel_map: Dictionary) -> void:
                 current_scene.add_button(0, nav_button)
                 scene_header_added = true
 
-            var node_name: String = "NODE:  %s\n" % instance_log.node_name
+            var node_name: String = "NODE:   %s\n" % instance_log.node_name
             var node_main: String = "MAIN:   %s\n" % instance_log.main_channel.capitalize()
-            var node_sub: String =  "SUB:      %s\n" % instance_log.sub_channel.capitalize()
+            var node_sub: String = "SUB:      %s\n" % instance_log.sub_channel.capitalize()
             var new_node: TreeItem = create_item(current_scene)
             new_node.set_text(0, node_name + node_main + node_sub)
 
