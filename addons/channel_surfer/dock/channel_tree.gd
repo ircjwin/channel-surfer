@@ -1,7 +1,9 @@
 @tool
-class_name ChannelTree
 extends Tree
 
+
+const CS_PATHS: Resource = preload("res://addons/channel_surfer/data/schema/cs_paths.gd")
+const CS_CONFIG_TYPE: Resource = preload(CS_PATHS.CONFIG_TYPE)
 
 signal channel_map_changed(changed_map: Dictionary)
 signal channel_edited(new_name: String, old_name: String, parent_name: String)
@@ -9,7 +11,7 @@ signal channel_edited(new_name: String, old_name: String, parent_name: String)
 @export var add_item_icon: Texture2D
 @export var remove_item_icon: Texture2D
 
-@onready var cs_config: CSConfig = preload("res://addons/channel_surfer/data/cs_config.tres")
+@onready var cs_config: CS_CONFIG_TYPE = preload(CS_PATHS.CONFIG_STORE)
 
 const NEW_CHANNEL_TEXT: String = "new_channel"
 const ADD_MAIN_TEXT: String = "New Main..."

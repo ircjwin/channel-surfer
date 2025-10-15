@@ -1,4 +1,3 @@
-class_name InstanceLog
 extends Resource
 
 

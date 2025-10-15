@@ -1,4 +1,3 @@
-class_name CSConfig
 extends Resource
 
 

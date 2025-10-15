@@ -1,6 +1,6 @@
 [gd_scene load_steps=15 format=3 uid="uid://b11jfnrqpx205"]
 
-[ext_resource type="Script" uid="uid://dnxyonvfbv0xo" path="res://addons/channel_surfer/scripts/channel_dock.gd" id="1_t706h"]
+[ext_resource type="Script" uid="uid://dnxyonvfbv0xo" path="res://addons/channel_surfer/dock/channel_dock.gd" id="1_t706h"]
 [ext_resource type="Texture2D" uid="uid://dgpg0vkof5usy" path="res://addons/channel_surfer/assets/debug_icon.png" id="2_7qho6"]
 [ext_resource type="Texture2D" uid="uid://47fdem0fpjjc" path="res://addons/channel_surfer/assets/item_alert_icon.png" id="3_n3fpa"]
 [ext_resource type="Texture2D" uid="uid://bm08ef48qfy7v" path="res://addons/channel_surfer/assets/locked_icon.png" id="4_l30ru"]
@@ -8,12 +8,12 @@
 [ext_resource type="Texture2D" uid="uid://vc3v02y8u6u0" path="res://addons/channel_surfer/assets/channel_icon.png" id="6_uu6rb"]
 [ext_resource type="Texture2D" uid="uid://bsu6x77fkrvwl" path="res://addons/channel_surfer/assets/arrow_icon.png" id="7_sa46k"]
 [ext_resource type="Texture2D" uid="uid://dwv00nqrkul7d" path="res://addons/channel_surfer/assets/arrow_collapsed_icon.png" id="8_x2hjt"]
-[ext_resource type="Script" uid="uid://cfsyxh23qvyrx" path="res://addons/channel_surfer/scripts/channel_tree.gd" id="9_sycqf"]
+[ext_resource type="Script" uid="uid://cfsyxh23qvyrx" path="res://addons/channel_surfer/dock/channel_tree.gd" id="9_sycqf"]
 [ext_resource type="Texture2D" uid="uid://be25vlrrme5xi" path="res://addons/channel_surfer/assets/item_create_icon.png" id="10_05c2w"]
 [ext_resource type="Texture2D" uid="uid://0tgeu4yftsm2" path="res://addons/channel_surfer/assets/item_remove_icon.png" id="11_nps6d"]
-[ext_resource type="Script" uid="uid://bbbqt2g1m1xka" path="res://addons/channel_surfer/scripts/channel_debug.gd" id="12_yodnt"]
+[ext_resource type="Script" uid="uid://bbbqt2g1m1xka" path="res://addons/channel_surfer/dock/channel_debug.gd" id="12_yodnt"]
 [ext_resource type="Texture2D" uid="uid://cbqw1pa0vm3wr" path="res://addons/channel_surfer/assets/settings_icon.png" id="13_7qho6"]
-[ext_resource type="Script" uid="uid://c30txb8uqumcx" path="res://addons/channel_surfer/scripts/channel_settings.gd" id="13_n3fpa"]
+[ext_resource type="Script" uid="uid://c30txb8uqumcx" path="res://addons/channel_surfer/dock/channel_settings.gd" id="13_n3fpa"]
 
 [node name="Waves" type="Control"]
 layout_mode = 3
