@@ -2,16 +2,11 @@
 extends Tree
 
 
-const CS_PATHS: Resource = preload("res://addons/channel_surfer/data/schema/cs_paths.gd")
-const CS_CONFIG_TYPE: Resource = preload(CS_PATHS.CONFIG_TYPE)
-
 signal channel_map_changed(changed_map: Dictionary)
 signal channel_edited(new_name: String, old_name: String, parent_name: String)
 
 @export var add_item_icon: Texture2D
 @export var remove_item_icon: Texture2D
-
-@onready var cs_config: CS_CONFIG_TYPE = preload(CS_PATHS.CONFIG_STORE)
 
 const NEW_CHANNEL_TEXT: String = "new_channel"
 const ADD_MAIN_TEXT: String = "New Main..."
@@ -19,17 +14,15 @@ const ADD_SUB_TEXT: String = "New Sub..."
 const ADD_MAIN_COLOR: Color = Color(0, 0, 0, 0.4)
 const ADD_SUB_COLOR: Color = Color(0, 0, 0, 0.2)
 const FIRST_COLUMN: int = 0
+const DEV_CHANNEL_PREFIX: String = "cs_dev"
+const COMPONENT_GROUP: String = DEV_CHANNEL_PREFIX + "_component"
 
 var channel_map: Dictionary = {}
 var prev_item_text: String = ""
 var prev_hovered_item: TreeItem = null
 var is_hovering: bool = false
-var is_locked: bool: get = _get_is_locked, set = _set_is_locked
+var is_locked: bool = false
 var collapsed_items: Array[bool]
-
-
-func _enter_tree() -> void:
-    add_to_group(ChannelSurfer.MAP_GROUP)
 
 
 func _ready() -> void:
@@ -50,19 +43,14 @@ func get_channel_map() -> Dictionary:
     return channel_map
 
 
+func set_surfer_channel_map(surfer_node: ChannelSurfer) -> void:
+    surfer_node.set_channel_map(channel_map)
+
+
 func dispatch_channel_map() -> void:
     get_tree().call_group_flags(
         SceneTree.GROUP_CALL_DEFERRED | SceneTree.GROUP_CALL_UNIQUE,
-        ChannelSurfer.COMPONENT_GROUP, "set_channel_map", channel_map)
-
-
-func _get_is_locked() -> bool:
-    return cs_config.is_channel_locked
-
-
-func _set_is_locked(value: bool) -> void:
-    cs_config.is_channel_locked = value
-    ResourceSaver.save(cs_config)
+        COMPONENT_GROUP, "set_channel_map", channel_map)
 
 
 func build_tree(new_map: Dictionary = {}) -> void:

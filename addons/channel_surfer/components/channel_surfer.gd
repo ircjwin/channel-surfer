@@ -5,16 +5,9 @@ extends Node
 
 
 const CS_PATHS: Resource = preload("res://addons/channel_surfer/data/schema/cs_paths.gd")
-const CSUID_TYPE: Resource = preload(CS_PATHS.CSUID_TYPE)
-const TEMP_INSTANCE_TYPE: Resource = preload(CS_PATHS.TEMP_INSTANCE_TYPE)
 
-const DEV_CHANNEL_PREFIX: String = "cs_dev"
 const USER_CHANNEL_PREFIX: String = "cs_user"
-const COMPONENT_GROUP: String = DEV_CHANNEL_PREFIX + "_component"
-const DEBUG_GROUP: String = DEV_CHANNEL_PREFIX + "_debug"
-const MAP_GROUP: String = DEV_CHANNEL_PREFIX + "_map"
 const CHANNEL_PLACEHOLDER: String = "none"
-const ID_KEY: String = "csuid"
 
 var channel_map: Dictionary
 var main_channel: String = CHANNEL_PLACEHOLDER: set = _set_main_channel
@@ -26,27 +19,16 @@ var _is_synced = false
 
 
 func _enter_tree() -> void:
-    if not is_in_group(COMPONENT_GROUP):
-        add_to_group(COMPONENT_GROUP)
-
     channel_map = {}
-    start_sync()
 
 
 func _notification(what: int) -> void:
-    if what == NOTIFICATION_EDITOR_PRE_SAVE:
-        if is_inside_tree():
-            get_tree().call_group(DEBUG_GROUP, "presave_sync", self)
-        else:
-            _create_save_state()
-
-    elif what == NOTIFICATION_EDITOR_POST_SAVE and is_inside_tree():
-        get_tree().call_group(DEBUG_GROUP, "postsave_sync", self)
+    if not is_inside_tree() and what == NOTIFICATION_EDITOR_PRE_SAVE:
+        _create_save_state()
 
 
-func _process(delta: float) -> void:
-    if Engine.is_editor_hint() and not _is_synced:
-        _load_channel_map()
+func report_in(report_func: Callable = func(): pass) -> void:
+    report_func.call(self)
 
 
 func _get_property_list() -> Array[Dictionary]:
@@ -100,23 +82,10 @@ func _set(property: StringName, value: Variant) -> bool:
 
 
 func _create_save_state() -> void:
-    var cs_uid: String = ""
-    var scene_uid: String = ResourceUID.path_to_uid(owner.scene_file_path)
-    var temp_instance_log: TEMP_INSTANCE_TYPE = TEMP_INSTANCE_TYPE.new()
-
-    if has_meta(ID_KEY):
-        cs_uid = get_meta(ID_KEY)
-
-    temp_instance_log.scene_uid = scene_uid
-    temp_instance_log.cs_uid = cs_uid
-    temp_instance_log.node_name = name
-    temp_instance_log.main_channel = main_channel
-    temp_instance_log.sub_channel = sub_channel
-
-    var f: FileAccess = FileAccess.open(CS_PATHS.TEMP_STORE + cs_uid, FileAccess.WRITE)
-    if f.is_open():
-        f.store_string(JSON.stringify(JSON.from_native(temp_instance_log, true)))
-        f.close()
+    var packed_surfer: PackedScene = PackedScene.new()
+    var packed_filename: String = "%s-%s.tscn" % [get_parent().name, name]
+    packed_surfer.pack(self)
+    ResourceSaver.save(packed_surfer, CS_PATHS.TEMP_STORE + packed_filename)
 
 
 func _get_most_precise() -> String:
@@ -172,18 +141,4 @@ func _receive(value: bool) -> void:
 
 func set_channel_map(new_map: Dictionary) -> void:
     channel_map = new_map
-    end_sync()
     notify_property_list_changed()
-
-
-func _load_channel_map() -> void:
-    if is_inside_tree():
-        get_tree().call_group(MAP_GROUP, "dispatch_channel_map")
-
-
-func start_sync() -> void:
-    _is_synced = false
-
-
-func end_sync() -> void:
-    _is_synced = true

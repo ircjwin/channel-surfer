@@ -3,11 +3,11 @@ extends Tree
 
 
 const CS_PATHS: Resource = preload("res://addons/channel_surfer/data/schema/cs_paths.gd")
-const CS_CONFIG_TYPE: Resource = preload(CS_PATHS.CONFIG_TYPE)
 const CSUID_TYPE: Resource = preload(CS_PATHS.CSUID_TYPE)
 const INSTANCE_TYPE: Resource = preload(CS_PATHS.INSTANCE_TYPE)
-const TEMP_INSTANCE_TYPE: Resource = preload(CS_PATHS.TEMP_INSTANCE_TYPE)
 const CSUID_KEY: String = "csuid"
+const DEV_CHANNEL_PREFIX: String = "cs_dev"
+const COMPONENT_GROUP: String = DEV_CHANNEL_PREFIX + "_component"
 
 
 signal alerts_cleared
@@ -16,8 +16,6 @@ signal instance_map_changed(changed_map: Dictionary)
 
 @export var nav_button: Texture2D
 
-@onready var cs_config: CS_CONFIG_TYPE = preload(CS_PATHS.CONFIG_STORE)
-
 const DEBUG_FONT_COLOR: String = "ff786b"
 
 var instance_map: Dictionary
@@ -25,10 +23,6 @@ var is_dispatching_edits: bool = false
 var edited_current_text: String
 var edited_prev_text: String
 var edited_parent_text: String
-
-
-func _enter_tree() -> void:
-    add_to_group(ChannelSurfer.DEBUG_GROUP)
 
 
 func _ready() -> void:
@@ -41,6 +35,13 @@ func _on_button_clicked(item: TreeItem, _column: int, _id: int, mouse_button_ind
         EditorInterface.open_scene_from_path(item.get_text(0))
 
 
+func tag_surfer(surfer_node: ChannelSurfer) -> void:
+    if not surfer_node.has_meta(CSUID_KEY):
+        surfer_node.set_meta(CSUID_KEY, CSUID_TYPE.generate())
+    if not surfer_node.is_in_group(COMPONENT_GROUP):
+        surfer_node.add_to_group(COMPONENT_GROUP)
+
+
 func has_surfer(filepath: String) -> bool:
     var scene_uid: String = ResourceUID.path_to_uid(filepath)
     return instance_map.has(scene_uid)
@@ -51,30 +52,44 @@ func resolve_save_conflict(filepath: String) -> void:
         return
 
     var scene_uid: String = ResourceUID.path_to_uid(filepath)
+    var temp_dir: DirAccess = DirAccess.open(CS_PATHS.TEMP_STORE)
+
     instance_map.erase(scene_uid)
 
-    var temp_dir: DirAccess = DirAccess.open(CS_PATHS.TEMP_STORE)
     if temp_dir:
+        if temp_dir.get_files().is_empty():
+            get_tree().call_group_flags(
+                SceneTree.GROUP_CALL_DEFERRED | SceneTree.GROUP_CALL_UNIQUE,
+                COMPONENT_GROUP, "report_in", postsave_sync)
+            return
+
         for temp_filename: String in temp_dir.get_files():
             var temp_filepath: String = CS_PATHS.TEMP_STORE + temp_filename
-            var f: FileAccess = FileAccess.open(temp_filepath, FileAccess.READ)
-            var temp_instance_log: TEMP_INSTANCE_TYPE = JSON.to_native(JSON.parse_string(f.get_as_text()), true)
-            f.close()
+            var temp_packed: PackedScene = ResourceLoader.load(temp_filepath)
+            var temp_state: SceneState = temp_packed.get_state()
+            var prop_count: int = temp_state.get_node_property_count(0)
+            var instance_log: INSTANCE_TYPE = INSTANCE_TYPE.new()
+            var surfer_uid: String
 
-            if temp_instance_log.scene_uid == scene_uid:
-                var instance_log: INSTANCE_TYPE = INSTANCE_TYPE.new()
-                var scene_dict: Dictionary = instance_map.get_or_add(temp_instance_log.scene_uid, {})
-                var surfer_uid: String = temp_instance_log.cs_uid
+            instance_log.node_name = temp_state.get_node_name(0)
 
-                if surfer_uid.is_empty():
-                    surfer_uid = CSUID_TYPE.generate()
+            for i in range(prop_count):
+                match temp_state.get_node_property_name(0, i):
+                    "metadata/csuid":
+                        surfer_uid = temp_state.get_node_property_value(0, i)
+                    "main":
+                        instance_log.main_channel = temp_state.get_node_property_value(0, i)
+                    "sub":
+                        instance_log.sub_channel = temp_state.get_node_property_value(0, i)
 
-                instance_log.node_name = temp_instance_log.node_name
-                instance_log.main_channel = temp_instance_log.main_channel
-                instance_log.sub_channel = temp_instance_log.sub_channel
+            var scene_dict: Dictionary = instance_map.get_or_add(scene_uid, {})
 
-                scene_dict[surfer_uid] = instance_log
-                temp_dir.remove(temp_filepath)
+            ## Can't think of any way CSUID would be empty at this point
+            if surfer_uid.is_empty():
+                surfer_uid = CSUID_TYPE.generate()
+
+            scene_dict[surfer_uid] = instance_log
+            temp_dir.remove(temp_filepath)
 
     instance_map_changed.emit(instance_map)
 
@@ -101,13 +116,16 @@ func _edit_instance(surfer_node: ChannelSurfer) -> void:
 
 
 func _add_instance(surfer_node: ChannelSurfer) -> void:
+    ## New scene with new surfer doesn't have scene path yet
     var root_scene_path: String = surfer_node.owner.scene_file_path
     if root_scene_path.is_empty():
         return
 
     var root_scene_uid: String = ResourceUID.path_to_uid(root_scene_path)
 
-    if not surfer_node.has_meta(CSUID_KEY) or instance_map[root_scene_uid].has(surfer_node.get_meta(CSUID_KEY)):
+    ## Can't think of a way that CSUID would be empty at this point
+    if not surfer_node.has_meta(CSUID_KEY) or \
+    (instance_map.has(root_scene_uid) and instance_map[root_scene_uid].has(surfer_node.get_meta(CSUID_KEY))):
         surfer_node.set_meta(CSUID_KEY, CSUID_TYPE.generate())
 
     var surfer_uid: String = surfer_node.get_meta(CSUID_KEY)
@@ -115,8 +133,8 @@ func _add_instance(surfer_node: ChannelSurfer) -> void:
     var instance_log: INSTANCE_TYPE = scene_dict.get_or_add(surfer_uid, INSTANCE_TYPE.new())
 
     instance_log.node_name = surfer_node.name
-    surfer_node.main_channel = instance_log.main_channel
-    surfer_node.sub_channel = instance_log.sub_channel
+    instance_log.main_channel = surfer_node.main_channel
+    instance_log.sub_channel = surfer_node.sub_channel
 
     instance_map_changed.emit(instance_map)
 
@@ -152,6 +170,7 @@ func postsave_sync(surfer_node: ChannelSurfer) -> void:
 
 
 func dispatch_channel_edits(current_text: String, prev_text: String, parent_text: String) -> void:
+    ## WHere to call report_in for edits
     is_dispatching_edits = true
 
     edited_current_text = current_text
@@ -163,14 +182,18 @@ func dispatch_channel_edits(current_text: String, prev_text: String, parent_text
         var scene_path: String = ResourceUID.uid_to_path(scene_uid)
         EditorInterface.open_scene_from_path(scene_path)
         await get_tree().process_frame
+        get_tree().call_group(COMPONENT_GROUP, "report_in", presave_sync)
         await get_tree().process_frame
         EditorInterface.save_scene()
+        await get_tree().process_frame
+        get_tree().call_group(COMPONENT_GROUP, "report_in", postsave_sync)
         await get_tree().process_frame
         EditorInterface.close_scene()
 
     for scene_path: String in EditorInterface.get_open_scenes():
         EditorInterface.open_scene_from_path(scene_path)
         await get_tree().process_frame
+        get_tree().call_group(COMPONENT_GROUP, "report_in", presave_sync)
         await get_tree().process_frame
 
     is_dispatching_edits = false
