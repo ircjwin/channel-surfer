@@ -1,3 +1,5 @@
 # Channel Surfer
 
-![Image](docs/media/cs_logo.png)
+<picture>
+ <img src="docs/media/cs_logo.png" height=256 width=256>
+</picture>
