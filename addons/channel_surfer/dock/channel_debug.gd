@@ -35,6 +35,13 @@ func _on_button_clicked(item: TreeItem, _column: int, _id: int, mouse_button_ind
         EditorInterface.open_scene_from_path(item.get_text(0))
 
 
+func uproot() -> void:
+    clear()
+    update_alerts()
+
+    instance_map_changed.emit(instance_map)
+
+
 func tag_surfer(surfer_node: ChannelSurfer) -> void:
     if not surfer_node.has_meta(CSUID_KEY):
         surfer_node.set_meta(CSUID_KEY, CSUID_TYPE.generate())
@@ -199,7 +206,7 @@ func dispatch_channel_edits(current_text: String, prev_text: String, parent_text
     is_dispatching_edits = false
 
 
-func update_alerts(channel_map: Dictionary) -> void:
+func update_alerts(channel_map: Dictionary = {}) -> void:
     clear()
     var alert_found: bool = false
     var debug_root: TreeItem

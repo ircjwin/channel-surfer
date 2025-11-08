@@ -79,6 +79,14 @@ func build_tree(new_map: Dictionary = {}) -> void:
     _create_item_adder(root, ADD_MAIN_TEXT, ADD_MAIN_COLOR)
 
 
+func uproot() -> void:
+    channel_map.clear()
+    build_tree()
+
+    dispatch_channel_map()
+    channel_map_changed.emit(channel_map)
+
+
 func _on_button_clicked(item: TreeItem, _column: int, _id: int, mouse_button_index: int) -> void:
     if mouse_button_index == MOUSE_BUTTON_LEFT:
         var item_parent: TreeItem = item.get_parent()

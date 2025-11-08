@@ -6,6 +6,8 @@ const CS_PATHS: Resource = preload("res://addons/channel_surfer/data/schema/cs_p
 const CHANNEL_TREE_TYPE: Resource = preload(CS_PATHS.TREE_TYPE)
 const CHANNEL_DEBUG_TYPE: Resource = preload(CS_PATHS.DEBUG_TYPE)
 const CS_CONFIG_TYPE: Resource = preload(CS_PATHS.CONFIG_TYPE)
+const DEV_CHANNEL_PREFIX: String = "cs_dev"
+const DEBUG_GROUP: String = DEV_CHANNEL_PREFIX + "_debug"
 
 @export var debug_icon: Texture2D
 @export var alert_icon: Texture2D
@@ -21,6 +23,11 @@ const CS_CONFIG_TYPE: Resource = preload(CS_PATHS.CONFIG_TYPE)
 @onready var settings_button: Button = %SettingsButton
 
 var cs_config: CS_CONFIG_TYPE
+
+
+func _enter_tree() -> void:
+    if not is_in_group(DEBUG_GROUP):
+        add_to_group(DEBUG_GROUP)
 
 
 func _ready() -> void:
