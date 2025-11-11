@@ -2,13 +2,13 @@
 extends TestBase
 
 
-const TEST_PATHS: Resource = preload("res://tests/core/test_paths.gd")
-
 var channel_surfer: ChannelSurfer
+var checked_out_filepath: String
 
 
 func before_all() -> Signal:
-    EditorInterface.open_scene_from_path(TEST_PATHS.TEST_SCENE_PATH)
+    checked_out_filepath = _checkout(TEST_PATHS.SURFER_SCENE_PATH)
+    EditorInterface.open_scene_from_path(checked_out_filepath)
     return get_tree().process_frame
 
 
@@ -28,13 +28,16 @@ func after_each() -> Signal:
 
 func after_all() -> Signal:
     EditorInterface.close_scene()
+    channel_debug.uproot()
+    var temp_dir: DirAccess = DirAccess.open("res://")
+    temp_dir.remove(checked_out_filepath)
     return get_tree().process_frame
 
 
 func test_dispatch_map_after_surfer_entered_tree() -> bool:
     EditorInterface.close_scene()
     await get_tree().process_frame
-    EditorInterface.open_scene_from_path(TEST_PATHS.TEST_SCENE_PATH)
+    EditorInterface.open_scene_from_path(checked_out_filepath)
     await get_tree().process_frame
     channel_surfer = EditorInterface.get_edited_scene_root().get_child(0)
     return not channel_surfer.channel_map.is_empty()
@@ -91,7 +94,7 @@ func test_auto_edit_closed_scene() -> bool:
     await get_tree().process_frame
     await get_tree().process_frame
 
-    EditorInterface.open_scene_from_path(TEST_PATHS.TEST_SCENE_PATH)
+    EditorInterface.open_scene_from_path(checked_out_filepath)
     await get_tree().process_frame
 
     channel_surfer = EditorInterface.get_edited_scene_root().get_child(0)

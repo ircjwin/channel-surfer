@@ -2,13 +2,13 @@
 extends TestBase
 
 
-const TEST_PATHS: Resource = preload("res://tests/core/test_paths.gd")
-
 var channel_surfer: ChannelSurfer
+var checked_out_filepath: String
 
 
 func before_all() -> Signal:
-    EditorInterface.open_scene_from_path(TEST_PATHS.TEST_SCENE_PATH)
+    checked_out_filepath = _checkout(TEST_PATHS.SURFER_SCENE_PATH)
+    EditorInterface.open_scene_from_path(checked_out_filepath)
     channel_surfer = EditorInterface.get_edited_scene_root().get_child(0)
     return get_tree().process_frame
 
@@ -34,6 +34,8 @@ func after_each() -> Signal:
 
 func after_all() -> Signal:
     EditorInterface.close_scene()
+    var temp_dir: DirAccess = DirAccess.open("res://")
+    temp_dir.remove(checked_out_filepath)
     return get_tree().process_frame
 
 

@@ -2,13 +2,14 @@
 extends TestBase
 
 
-const TEST_PATHS: Resource = preload("res://tests/core/test_paths.gd")
+var channel_surfer: ChannelSurfer
+var checked_out_filepath: String
 
 
 func before_all() -> Signal:
-    # EditorInterface.open_scene_from_path(TEST_PATHS.TEST_SCENE_PATH)
-    ## Just set the main/sub directly; don't need official channels
-    # channel_tree._add_tree_item(channel_tree.get_root(), 0)
+    checked_out_filepath = _checkout(TEST_PATHS.SURFER_SCENE_PATH)
+    EditorInterface.open_scene_from_path(checked_out_filepath)
+    channel_surfer = EditorInterface.get_edited_scene_root().get_child(0)
     return get_tree().process_frame
 
 
@@ -17,33 +18,60 @@ func before_each() -> Signal:
 
 
 func after_each() -> Signal:
-    # channel_debug.uproot()
+    channel_debug.uproot()
+    channel_surfer.main_channel = ChannelSurfer.CHANNEL_PLACEHOLDER
+    EditorInterface.save_scene()
+    await get_tree().process_frame
+    channel_surfer = EditorInterface.get_edited_scene_root().get_child(0)
     return get_tree().process_frame
 
 
 func after_all() -> Signal:
-    # EditorInterface.close_scene()
+    EditorInterface.close_scene()
+    channel_debug.uproot()
+    var temp_dir: DirAccess = DirAccess.open("res://")
+    temp_dir.remove(checked_out_filepath)
     return get_tree().process_frame
 
 
 func test_channel_surfer_save_inside_tree() -> bool:
-    return false
+    channel_surfer.main_channel = "changed_channel"
+    EditorInterface.save_scene()
+    await get_tree().process_frame
+
+    channel_surfer = EditorInterface.get_edited_scene_root().get_child(0)
+    var surfer_scene_uid: String = ResourceUID.path_to_uid(checked_out_filepath)
+    var surfer_node_uid: String = channel_surfer.get_meta(channel_debug.CSUID_KEY)
+    return channel_debug.instance_map and channel_debug.instance_map[surfer_scene_uid][surfer_node_uid]["main_channel"] == "changed_channel"
 
 
 func test_channel_surfer_save_outside_tree() -> bool:
-    # var temp_root: Node = Node.new()
-    # temp_root.name = "TempRoot"
-    # var temp_packed_scene: PackedScene = PackedScene.new()
-    # temp_packed_scene.pack(temp_root)
-    # ResourceSaver.save(temp_packed_scene, "res://tests/core/temp_scene.tscn")
-    # await get_tree().process_frame
+    channel_surfer.main_channel = "changed_channel"
+    EditorInterface.mark_scene_as_unsaved()
+    var temp_checkout: String = _checkout(TEST_PATHS.SENDER_SCENE_PATH)
+    EditorInterface.open_scene_from_path(temp_checkout)
+    await get_tree().process_frame
+    EditorInterface.save_all_scenes()
+    await get_tree().process_frame
+    EditorInterface.close_scene()
+    await get_tree().process_frame
 
-    # var temp_dir: DirAccess = DirAccess.open("res://")
-    # temp_dir.remove("res://tests/core/temp_scene.tscn")
-    # await get_tree().process_frame
+    var temp_dir: DirAccess = DirAccess.open("res://")
+    temp_dir.remove(temp_checkout)
 
-    return false
+    channel_surfer = EditorInterface.get_edited_scene_root().get_child(0)
+    var surfer_scene_uid: String = ResourceUID.path_to_uid(checked_out_filepath)
+    var surfer_node_uid: String = channel_surfer.get_meta(channel_debug.CSUID_KEY)
+    return channel_debug.instance_map and channel_debug.instance_map[surfer_scene_uid][surfer_node_uid]["main_channel"] == "changed_channel"
 
 
 func test_channel_surfer_fix() -> bool:
-    return false
+    channel_surfer.main_channel = "changed_channel"
+    EditorInterface.save_scene()
+    await get_tree().process_frame
+
+    channel_surfer = EditorInterface.get_edited_scene_root().get_child(0)
+    channel_surfer.main_channel = ChannelSurfer.CHANNEL_PLACEHOLDER
+    EditorInterface.save_scene()
+    await get_tree().process_frame
+    return not channel_debug.get_root() or channel_debug.get_root().get_child_count() == 9

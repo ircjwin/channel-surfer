@@ -9,7 +9,7 @@ const DEBUG_GROUP: String = DEV_CHANNEL_PREFIX + "_debug"
 
 
 func _run():
-	EditorInterface.open_scene_from_path(TEST_PATHS.TEST_SCENE_PATH)
+	EditorInterface.open_scene_from_path(TEST_PATHS.SURFER_SCENE_PATH)
 	var plugin_node: Node = EditorInterface.get_edited_scene_root().get_tree().get_first_node_in_group(DEBUG_GROUP)
 	EditorInterface.close_scene()
 	if plugin_node:

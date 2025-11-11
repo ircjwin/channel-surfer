@@ -36,7 +36,7 @@ func _on_button_clicked(item: TreeItem, _column: int, _id: int, mouse_button_ind
 
 
 func uproot() -> void:
-    clear()
+    instance_map.clear()
     update_alerts()
 
     instance_map_changed.emit(instance_map)
@@ -85,9 +85,9 @@ func resolve_save_conflict(filepath: String) -> void:
                     "metadata/csuid":
                         surfer_uid = temp_state.get_node_property_value(0, i)
                     "main":
-                        instance_log.main_channel = temp_state.get_node_property_value(0, i)
+                        instance_log.main_channel = temp_state.get_node_property_value(0, i).to_snake_case()
                     "sub":
-                        instance_log.sub_channel = temp_state.get_node_property_value(0, i)
+                        instance_log.sub_channel = temp_state.get_node_property_value(0, i).to_snake_case()
 
             var scene_dict: Dictionary = instance_map.get_or_add(scene_uid, {})
 

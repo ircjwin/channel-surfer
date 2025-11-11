@@ -1,0 +1,14 @@
+[gd_scene load_steps=2 format=3 uid="uid://qfn4f1qcakq2"]
+
+[ext_resource type="Script" uid="uid://bsyf5u87lrg5r" path="res://addons/channel_surfer/components/cs_receiver.gd" id="1_62iud"]
+
+[node name="ReceiverScene" type="Node"]
+
+[node name="CSReceiver" type="Node" parent="."]
+script = ExtResource("1_62iud")
+parcel/expected_type = null
+parcel_request/responses = Array[Resource]([])
+main = "None"
+sub = "None"
+metadata/_custom_type_script = "uid://bsyf5u87lrg5r"
+metadata/csuid = "csuid_lAc4heiO"

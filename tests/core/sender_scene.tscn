@@ -1,0 +1,14 @@
+[gd_scene load_steps=2 format=3 uid="uid://dry0sbpjwix16"]
+
+[ext_resource type="Script" uid="uid://nq1beii5xam4" path="res://addons/channel_surfer/components/cs_sender.gd" id="1_l4dg6"]
+
+[node name="SenderScene" type="Node"]
+
+[node name="CSSender" type="Node" parent="."]
+script = ExtResource("1_l4dg6")
+parcel/parcel_contents = null
+parcel_request/request_type = null
+main = "None"
+sub = "None"
+metadata/_custom_type_script = "uid://nq1beii5xam4"
+metadata/csuid = "csuid_GPRcSFbF"

@@ -1,9 +1,10 @@
 @abstract
-class_name TestBase extends EditorPlugin
+class_name TestBase extends Node
 
 
 signal tests_finished
 
+const TEST_PATHS: Resource = preload("res://tests/core/test_paths.gd")
 const CS_PATHS: Resource = preload("res://addons/channel_surfer/data/schema/cs_paths.gd")
 const CHANNEL_TREE_TYPE: Resource = preload(CS_PATHS.TREE_TYPE)
 const CHANNEL_DEBUG_TYPE: Resource = preload(CS_PATHS.DEBUG_TYPE)
@@ -69,3 +70,11 @@ func _grade(test_name: String, test_result: bool) -> void:
         failed += 1
 
     print_rich("[color=%s]\t◉ %s - %s[/color]" % [result_color, formatted_name, final_grade])
+
+
+func _checkout(filepath: String) -> String:
+    var temp_dir: DirAccess = DirAccess.open("res://")
+    var temp_file_id: String = str(randi_range(100000, 999999))
+    var temp_filepath: String = filepath.insert(len(filepath) - 5, temp_file_id)
+    temp_dir.copy(filepath, temp_filepath)
+    return temp_filepath
