@@ -27,12 +27,14 @@ var edited_parent_text: String
 
 func _ready() -> void:
     hide_root = true
+    set_column_expand_ratio(0, 1)
+    set_column_expand_ratio(1, 3)
     button_clicked.connect(_on_button_clicked)
 
 
 func _on_button_clicked(item: TreeItem, _column: int, _id: int, mouse_button_index: int) -> void:
     if mouse_button_index == MOUSE_BUTTON_LEFT:
-        EditorInterface.open_scene_from_path(item.get_text(0))
+        EditorInterface.open_scene_from_path(item.get_text(1))
 
 
 func uproot() -> void:
@@ -91,7 +93,7 @@ func resolve_save_conflict(filepath: String) -> void:
 
             var scene_dict: Dictionary = instance_map.get_or_add(scene_uid, {})
 
-            ## Can't think of any way CSUID would be empty at this point
+            # Can't think of any way CSUID would be empty at this point
             if surfer_uid.is_empty():
                 surfer_uid = CSUID_TYPE.generate()
 
@@ -123,14 +125,14 @@ func _edit_instance(surfer_node: ChannelSurfer) -> void:
 
 
 func _add_instance(surfer_node: ChannelSurfer) -> void:
-    ## New scene with new surfer doesn't have scene path yet
+    # New scene with new surfer doesn't have scene path yet
     var root_scene_path: String = surfer_node.owner.scene_file_path
     if root_scene_path.is_empty():
         return
 
     var root_scene_uid: String = ResourceUID.path_to_uid(root_scene_path)
 
-    ## Can't think of a way that CSUID would be empty at this point
+    # Can't think of a way that CSUID would be empty at this point
     if not surfer_node.has_meta(CSUID_KEY) or \
     (instance_map.has(root_scene_uid) and instance_map[root_scene_uid].has(surfer_node.get_meta(CSUID_KEY))):
         surfer_node.set_meta(CSUID_KEY, CSUID_TYPE.generate())
@@ -177,7 +179,7 @@ func postsave_sync(surfer_node: ChannelSurfer) -> void:
 
 
 func dispatch_channel_edits(current_text: String, prev_text: String, parent_text: String) -> void:
-    ## WHere to call report_in for edits
+    # WHere to call report_in for edits
     is_dispatching_edits = true
 
     edited_current_text = current_text
@@ -228,16 +230,18 @@ func update_alerts(channel_map: Dictionary = {}) -> void:
             if not scene_header_added:
                 var scene_name: String = ResourceUID.uid_to_path(scene_uid)
                 current_scene = create_item(debug_root)
-                current_scene.set_text(0, scene_name)
+                current_scene.set_text(0, "SCENE:")
+                current_scene.set_text(1, scene_name)
                 current_scene.collapsed = true
-                current_scene.add_button(0, nav_button)
+                current_scene.add_button(1, nav_button)
                 scene_header_added = true
 
-            var node_name: String = "NODE:   %s\n" % instance_log.node_name
-            var node_main: String = "MAIN:   %s\n" % instance_log.main_channel.capitalize()
-            var node_sub: String = "SUB:      %s\n" % instance_log.sub_channel.capitalize()
+            var node_name: String = "%s\n" % instance_log.node_name
+            var node_main: String = "%s\n" % instance_log.main_channel.capitalize()
+            var node_sub: String = "%s" % instance_log.sub_channel.capitalize()
             var new_node: TreeItem = create_item(current_scene)
-            new_node.set_text(0, node_name + node_main + node_sub)
+            new_node.set_text(0, "NODE:\nMAIN:\nSUB:")
+            new_node.set_text(1, node_name + node_main + node_sub)
 
     if alert_found:
         alerts_filled.emit()

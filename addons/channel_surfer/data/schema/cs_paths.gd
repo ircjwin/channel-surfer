@@ -19,5 +19,5 @@ const TEMP_STORE: String =           "res://addons/channel_surfer/data/temp/"
 
 
 ## DOCK RESOURCES
-const DOCK_SCENE: String =     "res://addons/channel_surfer/scenes/channel_dock.tscn"
+const DOCK_SCENE: String =     "res://addons/channel_surfer/dock/channel_dock.tscn"
 const DOCK_ICON: String =      "res://addons/channel_surfer/assets/channel_icon.png"

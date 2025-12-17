@@ -77,4 +77,5 @@ func _checkout(filepath: String) -> String:
     var temp_file_id: String = str(randi_range(100000, 999999))
     var temp_filepath: String = filepath.insert(len(filepath) - 5, temp_file_id)
     temp_dir.copy(filepath, temp_filepath)
+    ResourceUID.create_id_for_path(temp_filepath)
     return temp_filepath

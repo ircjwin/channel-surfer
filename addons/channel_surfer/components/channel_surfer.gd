@@ -142,3 +142,59 @@ func _receive(value: bool) -> void:
 func set_channel_map(new_map: Dictionary) -> void:
     channel_map = new_map
     notify_property_list_changed()
+
+
+# https://forum.godotengine.org/t/how-to-compare-class-name-with-string/116692/3
+func get_type_as_string(value: Variant) -> String:
+    if value == null:
+        return ""
+
+    if value is Object:
+        var script: Script = value.get_script()
+        if script == null:
+            return value.get_class()
+
+        var type_as_string: String = script.get_global_name()
+        if type_as_string == "":
+            type_as_string = script.get_instance_base_type()
+
+        return type_as_string
+
+    return type_string(typeof(value))
+
+
+func _send_ping() -> void:
+    pass
+
+
+func _receive_ping() -> void:
+    pass
+
+
+func _send_variant(variant: Variant) -> void:
+    pass
+
+
+func _receive_variant(variant: Variant) -> void:
+    pass
+
+
+func _send_object(object: Object) -> void:
+    pass
+
+
+func _receive_objecdt(object: Object) -> void:
+    pass
+
+
+func _send_request(request: String) -> void:
+    pass
+
+
+func _receive_request(request: String) -> void:
+    pass
+
+
+func _fulfill_request(fulfillment: Variant) -> void:
+    pass
+
