@@ -21,6 +21,7 @@ const DEBUG_GROUP: String = DEV_CHANNEL_PREFIX + "_debug"
 @onready var debug_button: Button = %DebugButton
 @onready var lock_button: Button = %LockButton
 @onready var settings_button: Button = %SettingsButton
+@onready var channel_tab: HBoxContainer = %ChannelTab
 
 var cs_config: CS_CONFIG_TYPE
 
@@ -32,7 +33,7 @@ func _enter_tree() -> void:
 
 func _ready() -> void:
     channel_debug.hide()
-    channel_tree.show()
+    channel_tab.show()
     lock_button.show()
 
     channel_debug.alerts_filled.connect(_on_alerts_filled)
@@ -166,13 +167,13 @@ func _on_alerts_cleared() -> void:
 
 func _on_channel_button_pressed() -> void:
     channel_debug.hide()
-    channel_tree.show()
+    channel_tab.show()
     settings_button.show()
     lock_button.show()
 
 
 func _on_debug_button_pressed() -> void:
-    channel_tree.hide()
+    channel_tab.hide()
     settings_button.hide()
     lock_button.hide()
     channel_debug.show()

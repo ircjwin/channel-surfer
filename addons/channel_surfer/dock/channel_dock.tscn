@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://b11jfnrqpx205"]
+[gd_scene load_steps=17 format=3 uid="uid://b11jfnrqpx205"]
 
 [ext_resource type="Script" uid="uid://dnxyonvfbv0xo" path="res://addons/channel_surfer/dock/channel_dock.gd" id="1_t706h"]
 [ext_resource type="Texture2D" uid="uid://dgpg0vkof5usy" path="res://addons/channel_surfer/assets/debug_icon.png" id="2_7qho6"]
@@ -7,12 +7,14 @@
 [ext_resource type="Texture2D" uid="uid://b61sh7ngcyi8y" path="res://addons/channel_surfer/assets/unlocked_icon.png" id="5_0xcfh"]
 [ext_resource type="Texture2D" uid="uid://vc3v02y8u6u0" path="res://addons/channel_surfer/assets/channel_icon.png" id="6_uu6rb"]
 [ext_resource type="Texture2D" uid="uid://bsu6x77fkrvwl" path="res://addons/channel_surfer/assets/arrow_icon.png" id="7_sa46k"]
+[ext_resource type="Script" uid="uid://cew3ho020igpg" path="res://addons/channel_surfer/dock/channel_tab.gd" id="7_w2ev3"]
 [ext_resource type="Texture2D" uid="uid://dwv00nqrkul7d" path="res://addons/channel_surfer/assets/arrow_collapsed_icon.png" id="8_x2hjt"]
 [ext_resource type="Script" uid="uid://cfsyxh23qvyrx" path="res://addons/channel_surfer/dock/channel_tree.gd" id="9_sycqf"]
 [ext_resource type="Texture2D" uid="uid://be25vlrrme5xi" path="res://addons/channel_surfer/assets/item_create_icon.png" id="10_05c2w"]
 [ext_resource type="Texture2D" uid="uid://0tgeu4yftsm2" path="res://addons/channel_surfer/assets/item_remove_icon.png" id="11_nps6d"]
 [ext_resource type="Script" uid="uid://bbbqt2g1m1xka" path="res://addons/channel_surfer/dock/channel_debug.gd" id="12_yodnt"]
 [ext_resource type="Texture2D" uid="uid://cbqw1pa0vm3wr" path="res://addons/channel_surfer/assets/settings_icon.png" id="13_7qho6"]
+[ext_resource type="PackedScene" uid="uid://ccleejua6e1m8" path="res://addons/channel_surfer/dock/switchboard.tscn" id="13_gyqtw"]
 [ext_resource type="Script" uid="uid://c30txb8uqumcx" path="res://addons/channel_surfer/dock/channel_settings.gd" id="13_n3fpa"]
 
 [node name="Channels" type="Control"]
@@ -36,36 +38,53 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+[node name="TabBarHBox" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
 
-[node name="ChannelButton" type="Button" parent="VBoxContainer/HBoxContainer"]
+[node name="ChannelButton" type="Button" parent="VBoxContainer/TabBarHBox"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Channels"
 icon = ExtResource("6_uu6rb")
 
-[node name="DebugButton" type="Button" parent="VBoxContainer/HBoxContainer"]
+[node name="DebugButton" type="Button" parent="VBoxContainer/TabBarHBox"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Debug"
-icon = ExtResource("3_n3fpa")
+icon = ExtResource("2_7qho6")
 
-[node name="ChannelTree" type="Tree" parent="VBoxContainer"]
+[node name="ChannelTab" type="HBoxContainer" parent="VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_vertical = 3
+script = ExtResource("7_w2ev3")
+
+[node name="ChannelTree" type="Tree" parent="VBoxContainer/ChannelTab"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_colors/guide_color = Color(1, 1, 1, 0.3)
 theme_override_constants/draw_guides = 1
 theme_override_constants/draw_relationship_lines = 0
 theme_override_icons/arrow = ExtResource("7_sa46k")
 theme_override_icons/arrow_collapsed = ExtResource("8_x2hjt")
+allow_rmb_select = true
 hide_root = true
 script = ExtResource("9_sycqf")
 add_item_icon = ExtResource("10_05c2w")
 remove_item_icon = ExtResource("11_nps6d")
+
+[node name="BackForthButton" type="Button" parent="VBoxContainer/ChannelTab"]
+unique_name_in_owner = true
+layout_mode = 2
+text = ">"
+
+[node name="Switchboard" parent="VBoxContainer/ChannelTab" instance=ExtResource("13_gyqtw")]
+unique_name_in_owner = true
+layout_mode = 2
 
 [node name="ChannelDebug" type="Tree" parent="VBoxContainer"]
 unique_name_in_owner = true
@@ -99,18 +118,18 @@ button_pressed = true
 layout_mode = 2
 text = "Auto update channel edits"
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer"]
+[node name="SettingsHBox" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
 alignment = 2
 
-[node name="SettingsButton" type="Button" parent="VBoxContainer/HBoxContainer2"]
+[node name="SettingsButton" type="Button" parent="VBoxContainer/SettingsHBox"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 8
 icon = ExtResource("13_7qho6")
 
-[node name="LockButton" type="Button" parent="VBoxContainer/HBoxContainer2"]
+[node name="LockButton" type="Button" parent="VBoxContainer/SettingsHBox"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 8

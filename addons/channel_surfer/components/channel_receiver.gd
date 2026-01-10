@@ -51,8 +51,6 @@ func _get_property_list() -> Array[Dictionary]:
         "name": POSTCARD_RESPONSES,
         "type": TYPE_ARRAY,
         "usage": PROPERTY_USAGE_DEFAULT,
-        "hint": PROPERTY_HINT_TYPE_STRING,
-        "hint_string": "Variant",
     })
     return properties
 

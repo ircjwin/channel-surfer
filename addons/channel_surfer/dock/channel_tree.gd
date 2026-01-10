@@ -24,6 +24,8 @@ var is_hovering: bool = false
 var is_locked: bool = false
 var collapsed_items: Array[bool]
 
+@onready var switchboard: Control = %Switchboard
+
 
 func _ready() -> void:
     item_mouse_selected.connect(_on_item_mouse_selected)
@@ -32,6 +34,8 @@ func _ready() -> void:
     mouse_entered.connect(_on_mouse_entered)
     mouse_exited.connect(_on_mouse_exited)
     button_clicked.connect(_on_button_clicked)
+
+
 
 
 func _process(_delta: float) -> void:
@@ -192,6 +196,14 @@ func _on_item_mouse_selected(mouse_position: Vector2, mouse_button_index: int) -
 
         if selected_item == item_parent.get_child(-1):
             _add_tree_item.call_deferred(item_parent, selected_item.get_index())
+
+    if mouse_button_index == MOUSE_BUTTON_RIGHT:
+        var selected_item: TreeItem = get_item_at_position(mouse_position)
+        var item_parent: TreeItem = selected_item.get_parent()
+
+        if selected_item != item_parent.get_child(-1):
+            hide()
+            switchboard.show()
 
 
 func _make_unique(new_text: String, siblings: Array) -> String:
