@@ -1,12 +1,30 @@
-[gd_scene load_steps=2 format=3 uid="uid://ccleejua6e1m8"]
+[gd_scene format=3 uid="uid://ccleejua6e1m8"]
 
 [ext_resource type="Script" uid="uid://cn303fdinex8" path="res://addons/channel_surfer/dock/switchboard.gd" id="1_2cg3f"]
 
-[node name="Switchboard" type="Panel"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7iiuo"]
+bg_color = Color(0.12941177, 0.14901961, 0.18039216, 1)
+
+[sub_resource type="DPITexture" id="DPITexture_2cg3f"]
+_source = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\"><path fill=\"#ff5d5d\" d=\"M2 1v8.586l1.293-1.293a1 1 0 0 1 1.414 0L7 10.587l2.293-2.293a1 1 0 0 1 1.414 0L13 10.586l1-1V6H9V1H2zm8 0v4h4zm-6 9.414-2 2V15h12v-2.586l-.293.293a1 1 0 0 1-1.414 0L10 10.414l-2.293 2.293a1 1 0 0 1-1.414 0L4 10.414z\"/></svg>
+"
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_2cg3f"]
+bg_color = Color(0.078431375, 0.09019608, 0.10980392, 1)
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.3019608)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_esdtq"]
+bg_color = Color(0.09803922, 0.1254902, 0.16078432, 1)
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 0.3019608)
+
+[node name="Switchboard" type="Panel" unique_id=1952358337]
 size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_7iiuo")
 script = ExtResource("1_2cg3f")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="."]
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=126960879]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -14,42 +32,46 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer"]
+[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer" unique_id=371489086]
 layout_mode = 2
 theme_override_constants/margin_left = 4
 theme_override_constants/margin_top = 4
 theme_override_constants/margin_right = 4
 theme_override_constants/margin_bottom = 4
 
-[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/MarginContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/MarginContainer" unique_id=1981796570]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="RootButton" type="Button" parent="VBoxContainer/MarginContainer/HBoxContainer"]
+[node name="RootButton" type="Button" parent="VBoxContainer/MarginContainer/HBoxContainer" unique_id=1752768586]
 unique_name_in_owner = true
 layout_mode = 2
 text = "..."
 
-[node name="MainArrowLabel" type="Label" parent="VBoxContainer/MarginContainer/HBoxContainer"]
+[node name="MainTextureRect" type="TextureRect" parent="VBoxContainer/MarginContainer/HBoxContainer" unique_id=217555823]
+unique_name_in_owner = true
 layout_mode = 2
-text = ">"
+size_flags_vertical = 4
+texture = SubResource("DPITexture_2cg3f")
 
-[node name="MainHBoxContainer" type="HBoxContainer" parent="VBoxContainer/MarginContainer/HBoxContainer"]
+[node name="MainHBoxContainer" type="HBoxContainer" parent="VBoxContainer/MarginContainer/HBoxContainer" unique_id=539800941]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="MainButton" type="Button" parent="VBoxContainer/MarginContainer/HBoxContainer/MainHBoxContainer"]
+[node name="MainButton" type="Button" parent="VBoxContainer/MarginContainer/HBoxContainer/MainHBoxContainer" unique_id=1205499353]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 size_flags_horizontal = 3
+clip_text = true
 
-[node name="MainOptionButton" type="OptionButton" parent="VBoxContainer/MarginContainer/HBoxContainer/MainHBoxContainer"]
+[node name="MainOptionButton" type="OptionButton" parent="VBoxContainer/MarginContainer/HBoxContainer/MainHBoxContainer" unique_id=593164042]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 alignment = 1
+clip_text = true
 selected = 0
 fit_to_longest_item = false
 item_count = 4
@@ -62,29 +84,33 @@ popup/item_2/id = 2
 popup/item_3/text = "C"
 popup/item_3/id = 3
 
-[node name="SubHBoxContainer" type="HBoxContainer" parent="VBoxContainer/MarginContainer/HBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="SubArrowLabel" type="Label" parent="VBoxContainer/MarginContainer/HBoxContainer/SubHBoxContainer"]
+[node name="SubTextureRect" type="TextureRect" parent="VBoxContainer/MarginContainer/HBoxContainer" unique_id=1274844963]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
-text = ">"
+size_flags_vertical = 4
+texture = SubResource("DPITexture_2cg3f")
 
-[node name="SubButton" type="Button" parent="VBoxContainer/MarginContainer/HBoxContainer/SubHBoxContainer"]
+[node name="SubHBoxContainer" type="HBoxContainer" parent="VBoxContainer/MarginContainer/HBoxContainer" unique_id=1137108683]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="SubButton" type="Button" parent="VBoxContainer/MarginContainer/HBoxContainer/SubHBoxContainer" unique_id=1358495696]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 size_flags_horizontal = 3
+clip_text = true
 
-[node name="SubOptionButton" type="OptionButton" parent="VBoxContainer/MarginContainer/HBoxContainer/SubHBoxContainer"]
+[node name="SubOptionButton" type="OptionButton" parent="VBoxContainer/MarginContainer/HBoxContainer/SubHBoxContainer" unique_id=595514068]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 alignment = 1
+clip_text = true
 selected = 0
 fit_to_longest_item = false
 item_count = 4
@@ -97,60 +123,32 @@ popup/item_2/id = 2
 popup/item_3/text = "3"
 popup/item_3/id = 3
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer"]
+[node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer" unique_id=925793952]
+visible = false
 layout_mode = 2
-size_flags_vertical = 3
 alignment = 2
 
-[node name="Button" type="Button" parent="VBoxContainer/HBoxContainer2"]
+[node name="Button" type="Button" parent="VBoxContainer/HBoxContainer2" unique_id=1184949404]
 layout_mode = 2
 text = "O"
 
-[node name="Button2" type="Button" parent="VBoxContainer/HBoxContainer2"]
+[node name="Button2" type="Button" parent="VBoxContainer/HBoxContainer2" unique_id=120079841]
 layout_mode = 2
 text = "X"
 
-[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer" unique_id=625406965]
 layout_mode = 2
+size_flags_vertical = 3
 
-[node name="TextEdit" type="TextEdit" parent="VBoxContainer/HBoxContainer"]
-custom_minimum_size = Vector2(60, 30)
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 0
-placeholder_text = "Name"
-
-[node name="SpinBox" type="SpinBox" parent="VBoxContainer/HBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 0
-alignment = 1
-
-[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer/HBoxContainer"]
-custom_minimum_size = Vector2(60, 60)
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/HBoxContainer/ScrollContainer"]
+[node name="MethodVBox" type="VBoxContainer" parent="VBoxContainer/ScrollContainer" unique_id=2075328713]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/HBoxContainer/ScrollContainer/VBoxContainer"]
+[node name="AddMethodButton" type="Button" parent="VBoxContainer/ScrollContainer/MethodVBox" unique_id=662313897]
+unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="TextEdit" type="TextEdit" parent="VBoxContainer/HBoxContainer/ScrollContainer/VBoxContainer/VBoxContainer"]
-custom_minimum_size = Vector2(60, 30)
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="TextEdit2" type="TextEdit" parent="VBoxContainer/HBoxContainer/ScrollContainer/VBoxContainer/VBoxContainer"]
-custom_minimum_size = Vector2(60, 30)
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="Button" type="Button" parent="VBoxContainer"]
-layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_2cg3f")
+theme_override_styles/hover = SubResource("StyleBoxFlat_esdtq")
 text = "+ Add Method"

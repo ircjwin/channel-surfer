@@ -1,23 +1,19 @@
-[gd_scene load_steps=17 format=3 uid="uid://b11jfnrqpx205"]
+[gd_scene format=3 uid="uid://b11jfnrqpx205"]
 
 [ext_resource type="Script" uid="uid://dnxyonvfbv0xo" path="res://addons/channel_surfer/dock/channel_dock.gd" id="1_t706h"]
-[ext_resource type="Texture2D" uid="uid://dgpg0vkof5usy" path="res://addons/channel_surfer/assets/debug_icon.png" id="2_7qho6"]
-[ext_resource type="Texture2D" uid="uid://47fdem0fpjjc" path="res://addons/channel_surfer/assets/item_alert_icon.png" id="3_n3fpa"]
-[ext_resource type="Texture2D" uid="uid://bm08ef48qfy7v" path="res://addons/channel_surfer/assets/locked_icon.png" id="4_l30ru"]
-[ext_resource type="Texture2D" uid="uid://b61sh7ngcyi8y" path="res://addons/channel_surfer/assets/unlocked_icon.png" id="5_0xcfh"]
 [ext_resource type="Texture2D" uid="uid://vc3v02y8u6u0" path="res://addons/channel_surfer/assets/channel_icon.png" id="6_uu6rb"]
-[ext_resource type="Texture2D" uid="uid://bsu6x77fkrvwl" path="res://addons/channel_surfer/assets/arrow_icon.png" id="7_sa46k"]
 [ext_resource type="Script" uid="uid://cew3ho020igpg" path="res://addons/channel_surfer/dock/channel_tab.gd" id="7_w2ev3"]
-[ext_resource type="Texture2D" uid="uid://dwv00nqrkul7d" path="res://addons/channel_surfer/assets/arrow_collapsed_icon.png" id="8_x2hjt"]
 [ext_resource type="Script" uid="uid://cfsyxh23qvyrx" path="res://addons/channel_surfer/dock/channel_tree.gd" id="9_sycqf"]
-[ext_resource type="Texture2D" uid="uid://be25vlrrme5xi" path="res://addons/channel_surfer/assets/item_create_icon.png" id="10_05c2w"]
-[ext_resource type="Texture2D" uid="uid://0tgeu4yftsm2" path="res://addons/channel_surfer/assets/item_remove_icon.png" id="11_nps6d"]
 [ext_resource type="Script" uid="uid://bbbqt2g1m1xka" path="res://addons/channel_surfer/dock/channel_debug.gd" id="12_yodnt"]
 [ext_resource type="Texture2D" uid="uid://cbqw1pa0vm3wr" path="res://addons/channel_surfer/assets/settings_icon.png" id="13_7qho6"]
 [ext_resource type="PackedScene" uid="uid://ccleejua6e1m8" path="res://addons/channel_surfer/dock/switchboard.tscn" id="13_gyqtw"]
 [ext_resource type="Script" uid="uid://c30txb8uqumcx" path="res://addons/channel_surfer/dock/channel_settings.gd" id="13_n3fpa"]
 
-[node name="Channels" type="Control"]
+[sub_resource type="DPITexture" id="DPITexture_pyvmt"]
+_source = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\"><path fill=\"#ff5d5d\" d=\"M2 1v8.586l1.293-1.293a1 1 0 0 1 1.414 0L7 10.587l2.293-2.293a1 1 0 0 1 1.414 0L13 10.586l1-1V6H9V1H2zm8 0v4h4zm-6 9.414-2 2V15h12v-2.586l-.293.293a1 1 0 0 1-1.414 0L10 10.414l-2.293 2.293a1 1 0 0 1-1.414 0L4 10.414z\"/></svg>
+"
+
+[node name="Channels" type="Control" unique_id=923280369]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -25,12 +21,8 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_t706h")
-debug_icon = ExtResource("2_7qho6")
-alert_icon = ExtResource("3_n3fpa")
-locked_icon = ExtResource("4_l30ru")
-unlocked_icon = ExtResource("5_0xcfh")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="."]
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=1481661465]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -38,30 +30,30 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="TabBarHBox" type="HBoxContainer" parent="VBoxContainer"]
+[node name="TabBarHBox" type="HBoxContainer" parent="VBoxContainer" unique_id=555838297]
 layout_mode = 2
 
-[node name="ChannelButton" type="Button" parent="VBoxContainer/TabBarHBox"]
+[node name="ChannelButton" type="Button" parent="VBoxContainer/TabBarHBox" unique_id=83083987]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Channels"
 icon = ExtResource("6_uu6rb")
 
-[node name="DebugButton" type="Button" parent="VBoxContainer/TabBarHBox"]
+[node name="DebugButton" type="Button" parent="VBoxContainer/TabBarHBox" unique_id=1701975444]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Debug"
-icon = ExtResource("2_7qho6")
+icon = SubResource("DPITexture_pyvmt")
 
-[node name="ChannelTab" type="HBoxContainer" parent="VBoxContainer"]
+[node name="ChannelTab" type="HBoxContainer" parent="VBoxContainer" unique_id=1285535314]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 script = ExtResource("7_w2ev3")
 
-[node name="ChannelTree" type="Tree" parent="VBoxContainer/ChannelTab"]
+[node name="ChannelTree" type="Tree" parent="VBoxContainer/ChannelTab" unique_id=1069465193]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -69,69 +61,68 @@ size_flags_vertical = 3
 theme_override_colors/guide_color = Color(1, 1, 1, 0.3)
 theme_override_constants/draw_guides = 1
 theme_override_constants/draw_relationship_lines = 0
-theme_override_icons/arrow = ExtResource("7_sa46k")
-theme_override_icons/arrow_collapsed = ExtResource("8_x2hjt")
 allow_rmb_select = true
 hide_root = true
 script = ExtResource("9_sycqf")
-add_item_icon = ExtResource("10_05c2w")
-remove_item_icon = ExtResource("11_nps6d")
 
-[node name="BackForthButton" type="Button" parent="VBoxContainer/ChannelTab"]
+[node name="BackForthButton" type="Button" parent="VBoxContainer/ChannelTab" unique_id=575903945]
 unique_name_in_owner = true
 layout_mode = 2
-text = ">"
+icon = SubResource("DPITexture_pyvmt")
 
-[node name="Switchboard" parent="VBoxContainer/ChannelTab" instance=ExtResource("13_gyqtw")]
+[node name="Switchboard" parent="VBoxContainer/ChannelTab" unique_id=1683635322 instance=ExtResource("13_gyqtw")]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 
-[node name="ChannelDebug" type="Tree" parent="VBoxContainer"]
+[node name="ChannelDebug" type="Tree" parent="VBoxContainer" unique_id=95621350]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_icons/arrow = ExtResource("7_sa46k")
-theme_override_icons/arrow_collapsed = ExtResource("8_x2hjt")
 columns = 2
 hide_root = true
 script = ExtResource("12_yodnt")
-nav_button = ExtResource("8_x2hjt")
 
-[node name="ChannelSettings" type="VBoxContainer" parent="VBoxContainer"]
+[node name="ChannelSettings" type="VBoxContainer" parent="VBoxContainer" unique_id=310780846]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 script = ExtResource("13_n3fpa")
 
-[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/ChannelSettings"]
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/ChannelSettings" unique_id=1315251573]
 layout_mode = 2
 
-[node name="AutoUpdateCheckBox" type="CheckBox" parent="VBoxContainer/ChannelSettings/HBoxContainer"]
+[node name="AutoUpdateCheckBox" type="CheckBox" parent="VBoxContainer/ChannelSettings/HBoxContainer" unique_id=1320729258]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
 button_pressed = true
 
-[node name="AutoUpdateLabel" type="Label" parent="VBoxContainer/ChannelSettings/HBoxContainer"]
+[node name="AutoUpdateLabel" type="Label" parent="VBoxContainer/ChannelSettings/HBoxContainer" unique_id=938376746]
 layout_mode = 2
 text = "Auto update channel edits"
 
-[node name="SettingsHBox" type="HBoxContainer" parent="VBoxContainer"]
+[node name="SettingsHBox" type="HBoxContainer" parent="VBoxContainer" unique_id=640980047]
 layout_mode = 2
 alignment = 2
 
-[node name="SettingsButton" type="Button" parent="VBoxContainer/SettingsHBox"]
+[node name="SaveButton" type="Button" parent="VBoxContainer/SettingsHBox" unique_id=1940130612]
+unique_name_in_owner = true
+layout_mode = 2
+icon = SubResource("DPITexture_pyvmt")
+
+[node name="LockButton" type="Button" parent="VBoxContainer/SettingsHBox" unique_id=1427363302]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 8
+icon = SubResource("DPITexture_pyvmt")
+
+[node name="SettingsButton" type="Button" parent="VBoxContainer/SettingsHBox" unique_id=1233734742]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 8
 icon = ExtResource("13_7qho6")
-
-[node name="LockButton" type="Button" parent="VBoxContainer/SettingsHBox"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 8
-size_flags_vertical = 8
-icon = ExtResource("5_0xcfh")

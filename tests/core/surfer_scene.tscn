@@ -1,10 +1,10 @@
-[gd_scene load_steps=2 format=3 uid="uid://cpjjmqxnkqrxi"]
+[gd_scene format=3 uid="uid://cpjjmqxnkqrxi"]
 
 [ext_resource type="Script" uid="uid://dd7raa01lblmq" path="res://addons/channel_surfer/components/channel_surfer.gd" id="1_rn2v7"]
 
-[node name="SurferScene" type="Node"]
+[node name="SurferScene" type="Node" unique_id=1824299270]
 
-[node name="ChannelSurfer" type="Node" parent="."]
+[node name="ChannelSurfer" type="Node" parent="." unique_id=62512421]
 script = ExtResource("1_rn2v7")
 main = "None"
 sub = "None"

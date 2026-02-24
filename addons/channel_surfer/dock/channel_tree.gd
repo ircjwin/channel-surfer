@@ -5,8 +5,8 @@ extends Tree
 signal channel_map_changed(changed_map: Dictionary)
 signal channel_edited(new_name: String, old_name: String, parent_name: String)
 
-@export var add_item_icon: Texture2D
-@export var remove_item_icon: Texture2D
+# @export var add_item_icon: Texture2D
+# @export var remove_item_icon: Texture2D
 
 const NEW_CHANNEL_TEXT: String = "new_channel"
 const ADD_MAIN_TEXT: String = "New Main..."
@@ -26,6 +26,9 @@ var collapsed_items: Array[bool]
 
 @onready var switchboard: Control = %Switchboard
 
+@onready var add_item_icon = get_theme_icon("Add", &"EditorIcons")
+@onready var remove_item_icon = get_theme_icon("Remove", &"EditorIcons")
+
 
 func _ready() -> void:
     item_mouse_selected.connect(_on_item_mouse_selected)
@@ -34,8 +37,6 @@ func _ready() -> void:
     mouse_entered.connect(_on_mouse_entered)
     mouse_exited.connect(_on_mouse_exited)
     button_clicked.connect(_on_button_clicked)
-
-
 
 
 func _process(_delta: float) -> void:

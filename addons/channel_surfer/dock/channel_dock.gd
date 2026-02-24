@@ -9,11 +9,6 @@ const CS_CONFIG_TYPE: Resource = preload(CS_PATHS.CONFIG_TYPE)
 const DEV_CHANNEL_PREFIX: String = "cs_dev"
 const DEBUG_GROUP: String = DEV_CHANNEL_PREFIX + "_debug"
 
-@export var debug_icon: Texture2D
-@export var alert_icon: Texture2D
-@export var locked_icon: Texture2D
-@export var unlocked_icon: Texture2D
-
 @onready var channel_tree: CHANNEL_TREE_TYPE = %ChannelTree
 @onready var channel_debug: CHANNEL_DEBUG_TYPE = %ChannelDebug
 @onready var channel_settings: VBoxContainer = %ChannelSettings
@@ -21,9 +16,17 @@ const DEBUG_GROUP: String = DEV_CHANNEL_PREFIX + "_debug"
 @onready var debug_button: Button = %DebugButton
 @onready var lock_button: Button = %LockButton
 @onready var settings_button: Button = %SettingsButton
+@onready var save_button: Button = %SaveButton
 @onready var channel_tab: HBoxContainer = %ChannelTab
+@onready var switchboard: Control = %Switchboard
+
+@onready var locked_icon = get_theme_icon("Lock", &"EditorIcons")
+@onready var unlocked_icon = get_theme_icon("Unlock", &"EditorIcons")
+@onready var debug_icon = get_theme_icon("Debug", &"EditorIcons")
+@onready var alert_icon = get_theme_icon("StatusWarning", &"EditorIcons")
 
 var cs_config: CS_CONFIG_TYPE
+var is_modified: bool = false
 
 
 func _enter_tree() -> void:
@@ -32,6 +35,7 @@ func _enter_tree() -> void:
 
 
 func _ready() -> void:
+    save_button.icon = get_theme_icon("Save", &"EditorIcons")
     channel_debug.hide()
     channel_tab.show()
     lock_button.show()
@@ -46,6 +50,7 @@ func _ready() -> void:
     channel_tree.channel_map_changed.connect(_on_channel_map_changed)
     channel_tree.channel_edited.connect(_on_channel_edited)
     channel_settings.auto_update_check_box.toggled.connect(_on_channel_settings_auto_update_toggled)
+    save_button.pressed.connect(_on_save_button_pressed)
 
     _load_config()
     _set_lock_button_icon()
@@ -61,6 +66,26 @@ func _ready() -> void:
     var temp_dir: DirAccess = DirAccess.open("res://")
     if not temp_dir.dir_exists(CS_PATHS.TEMP_STORE):
         temp_dir.make_dir(CS_PATHS.TEMP_STORE)
+
+    switchboard.fill_options(channel_map)
+    var switch_map: Dictionary = _load_switch_map()
+    switchboard.fill_switches(switch_map)
+
+
+func _on_save_button_pressed() -> void:
+    # Save channel map
+    # Save modified switches
+    _on_channel_map_changed(channel_tree.get_channel_map())
+
+
+func _load_switch_map() -> Dictionary:
+    if not FileAccess.file_exists(CS_PATHS.SWITCH_STORE):
+        return {}
+
+    var file: FileAccess = FileAccess.open(CS_PATHS.SWITCH_STORE, FileAccess.READ)
+    var switch_map: Dictionary = JSON.to_native(JSON.parse_string(file.get_as_text()), true)
+    file.close()
+    return switch_map
 
 
 func _on_node_added(node: Node) -> void:

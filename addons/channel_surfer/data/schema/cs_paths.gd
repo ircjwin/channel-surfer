@@ -12,12 +12,14 @@ const CONFIG_TYPE: String =         "res://addons/channel_surfer/data/schema/cs_
 
 
 ## DATA STORES
-const CHANNEL_STORE: String =        "res://addons/channel_surfer/data/channel_map.json"
-const INSTANCE_STORE: String =       "res://addons/channel_surfer/data/instance_map.json"
-const CONFIG_STORE: String =         "res://addons/channel_surfer/data/cs_config.json"
-const TEMP_STORE: String =           "res://addons/channel_surfer/data/temp/"
+const CHANNEL_STORE: String =       "res://addons/channel_surfer/data/channel_map.json"
+const INSTANCE_STORE: String =      "res://addons/channel_surfer/data/instance_map.json"
+const CONFIG_STORE: String =        "res://addons/channel_surfer/data/cs_config.json"
+const TEMP_STORE: String =          "res://addons/channel_surfer/data/temp/"
+const SWITCH_STORE: String =        "res://addons/channel_surfer/data/channel_switch.json"
+const SWITCH_DIR: String =          "res://addons/channel_surfer/data/switches/"
 
 
 ## DOCK RESOURCES
-const DOCK_SCENE: String =     "res://addons/channel_surfer/dock/channel_dock.tscn"
-const DOCK_ICON: String =      "res://addons/channel_surfer/assets/channel_icon.png"
+const DOCK_SCENE: String =          "res://addons/channel_surfer/dock/channel_dock.tscn"
+const DOCK_ICON: String =           "res://addons/channel_surfer/assets/channel_icon.png"

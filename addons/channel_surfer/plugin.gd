@@ -9,6 +9,7 @@ const CHANNEL_DOCK_ICON: Texture2D = preload(CS_PATHS.DOCK_ICON)
 
 var channel_dock: CHANNEL_DOCK_TYPE
 var plugin: EditorInspectorPlugin
+var is_unsaved: bool = true
 
 
 func _enter_tree() -> void:
@@ -31,3 +32,17 @@ func _exit_tree() -> void:
 	get_tree().node_added.disconnect(channel_dock._on_node_added)
 
 	remove_inspector_plugin(plugin)
+
+
+func _get_unsaved_status(for_scene: String) -> String:
+	if for_scene.is_empty():
+		print("for_scene is empty")
+	else:
+		print(for_scene)
+	if not is_unsaved:
+		return ""
+	return "There are unsaved channel changes."
+
+
+func _save_external_data() -> void:
+	is_unsaved = false

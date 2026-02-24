@@ -1,10 +1,10 @@
-[gd_scene load_steps=2 format=3 uid="uid://dry0sbpjwix16"]
+[gd_scene format=3 uid="uid://dry0sbpjwix16"]
 
 [ext_resource type="Script" uid="uid://nq1beii5xam4" path="res://addons/channel_surfer/components/channel_sender.gd" id="1_l4dg6"]
 
-[node name="SenderScene" type="Node"]
+[node name="SenderScene" type="Node" unique_id=1968954732]
 
-[node name="ChannelSender" type="Node" parent="."]
+[node name="ChannelSender" type="Node" parent="." unique_id=1078788347]
 script = ExtResource("1_l4dg6")
 react_sels = Array[String]([])
 parcel/contents = Array[String]([])

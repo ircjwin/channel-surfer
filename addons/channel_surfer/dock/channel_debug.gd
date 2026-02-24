@@ -14,9 +14,11 @@ signal alerts_cleared
 signal alerts_filled
 signal instance_map_changed(changed_map: Dictionary)
 
-@export var nav_button: Texture2D
+# @export var nav_button: Texture2D
 
 const DEBUG_FONT_COLOR: String = "ff786b"
+
+@onready var nav_button = get_theme_icon("FileAccess", &"EditorIcons")
 
 var instance_map: Dictionary
 var is_dispatching_edits: bool = false
