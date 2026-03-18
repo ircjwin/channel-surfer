@@ -32,6 +32,13 @@ func _ready() -> void:
     delete_method_button.pressed.connect(_on_delete_method_button_pressed)
 
 
+func _gui_input(event: InputEvent) -> void:
+    if event is InputEventMouseButton \
+    and event.button_index == MOUSE_BUTTON_LEFT \
+    and event.double_click:
+        pass
+
+
 func _mount_delete_method_button() -> void:
     delete_method_button = Button.new()
     add_title_bar_control(delete_method_button)

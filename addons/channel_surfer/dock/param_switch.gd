@@ -43,6 +43,7 @@ const VARIANT_TYPES = [
     TYPE_PACKED_VECTOR4_ARRAY,
 ]
 
+@onready var var_text_edit: TextEdit = %VarTextEdit
 @onready var hint_check_button: CheckButton = %HintCheckButton
 @onready var type_option_button: OptionButton = %TypeOptionButton
 @onready var class_button: Button = %ClassButton
@@ -50,6 +51,8 @@ const VARIANT_TYPES = [
 
 var arg_hint: String
 var is_base_type: bool = true
+var param_name: String
+var param_hint: String
 
 
 func _ready() -> void:
@@ -58,6 +61,11 @@ func _ready() -> void:
     hint_check_button.toggled.connect(_on_hint_check_button_toggled)
     class_button.pressed.connect(_on_class_button_pressed)
     delete_param_button.pressed.connect(_on_delete_param_button_pressed)
+    var_text_edit.text_set.connect(_on_var_text_edit_text_set)
+
+
+func _on_var_text_edit_text_set() -> void:
+    param_name = var_text_edit.text
 
 
 func _on_hint_check_button_toggled(toggled_on: bool) -> void:

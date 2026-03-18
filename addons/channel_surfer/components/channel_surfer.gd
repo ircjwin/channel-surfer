@@ -4,6 +4,9 @@ class_name ChannelSurfer
 extends Node
 
 
+@export_storage var main_switch: Resource
+@export_storage var sub_switch: Resource
+
 const CS_PATHS: Resource = preload("res://addons/channel_surfer/data/schema/cs_paths.gd")
 
 const USER_CHANNEL_PREFIX: String = "cs_user"

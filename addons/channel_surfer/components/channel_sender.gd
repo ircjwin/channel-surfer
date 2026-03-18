@@ -27,68 +27,109 @@ func _ready() -> void:
 
 func _get_property_list() -> Array[Dictionary]:
     var properties: Array[Dictionary] = []
-    var react_opts_string = "None," + ",".join(react_opts.map(func (x): return x.get_method()))
+    # var react_opts_string = "None," + ",".join(react_opts.map(func (x): return x.get_method()))
+
+    # properties.append({
+    #     "name": &"react_sels",
+    #     "type": TYPE_ARRAY,
+    #     "usage": PROPERTY_USAGE_DEFAULT,
+    #     "hint": PROPERTY_HINT_TYPE_STRING,
+    #     "hint_string": "%d/%d:%s" % [TYPE_STRING, PROPERTY_HINT_ENUM, react_opts_string, ],
+    # })
+    # properties.append({
+    #     "name": PARCEL_CONTENTS,
+    #     "type": TYPE_ARRAY,
+    #     "usage": PROPERTY_USAGE_DEFAULT,
+    #     "hint": PROPERTY_HINT_TYPE_STRING,
+    #     "hint_string": "%d:" % [TYPE_OBJECT, ],
+    # })
+    # properties.append({
+    #     "name": PARCEL_REQUEST,
+    #     "type": TYPE_ARRAY,
+    #     "usage": PROPERTY_USAGE_DEFAULT,
+    #     "hint": PROPERTY_HINT_ARRAY_TYPE,
+    #     "hint_string": "ParcelType",
+    # })
+    # properties.append({
+    #     "name": POSTCARD_CONTENTS,
+    #     "type": TYPE_ARRAY,
+    #     "usage": PROPERTY_USAGE_DEFAULT,
+    # })
+    # properties.append({
+    #     "name": POSTCARD_REQUEST,
+    #     "type": TYPE_ARRAY,
+    #     "usage": PROPERTY_USAGE_DEFAULT,
+    #     "hint": PROPERTY_HINT_ARRAY_TYPE,
+    #     "hint_string": "PostcardType",
+    # })
+
     properties.append({
-        "name": &"react_sels",
-        "type": TYPE_ARRAY,
-        "usage": PROPERTY_USAGE_DEFAULT,
-        "hint": PROPERTY_HINT_TYPE_STRING,
-        "hint_string": "%d/%d:%s" % [TYPE_STRING, PROPERTY_HINT_ENUM, react_opts_string, ],
+        "name": "Channel Switch",
+        "type": TYPE_NIL,
+        "usage": PROPERTY_USAGE_GROUP,
     })
     properties.append({
-        "name": PARCEL_CONTENTS,
-        "type": TYPE_ARRAY,
-        "usage": PROPERTY_USAGE_DEFAULT,
-        "hint": PROPERTY_HINT_TYPE_STRING,
-        "hint_string": "%d:" % [TYPE_OBJECT, ],
+        "name": "Method Switch",
+        "type": TYPE_NIL,
+        "usage": PROPERTY_USAGE_SUBGROUP,
+        "hint": PROPERTY_HINT_NONE,
+        "hint_string": "method_switch_",
     })
     properties.append({
-        "name": PARCEL_REQUEST,
-        "type": TYPE_ARRAY,
-        "usage": PROPERTY_USAGE_DEFAULT,
-        "hint": PROPERTY_HINT_ARRAY_TYPE,
-        "hint_string": "ParcelType",
-    })
-    properties.append({
-        "name": POSTCARD_CONTENTS,
-        "type": TYPE_ARRAY,
+        "name": "method_switch_param_switch",
+        "type": TYPE_STRING,
         "usage": PROPERTY_USAGE_DEFAULT,
     })
     properties.append({
-        "name": POSTCARD_REQUEST,
-        "type": TYPE_ARRAY,
-        "usage": PROPERTY_USAGE_DEFAULT,
-        "hint": PROPERTY_HINT_ARRAY_TYPE,
-        "hint_string": "PostcardType",
+        "name": "method_switch_copy",
+        "type": TYPE_CALLABLE,
+        "usage": PROPERTY_USAGE_EDITOR,
+        "hint": PROPERTY_HINT_TOOL_BUTTON,
+        "hint_string": "Copy,ActionCopy",
     })
+
     return properties
 
 
 func _get(property: StringName) -> Variant:
-    if property == PARCEL_CONTENTS:
-        return parcel_contents
-    if property == PARCEL_REQUEST:
-        return parcel_request
-    if property == POSTCARD_CONTENTS:
-        return postcard_contents
-    if property == POSTCARD_REQUEST:
-        return postcard_request
+    # if property == PARCEL_CONTENTS:
+    #     return parcel_contents
+    # if property == PARCEL_REQUEST:
+    #     return parcel_request
+    # if property == POSTCARD_CONTENTS:
+    #     return postcard_contents
+    # if property == POSTCARD_REQUEST:
+    #     return postcard_request
+
+    if property == "main/" + main_channel:
+        return main_channel
+    if property == "sub/" + sub_channel:
+        return sub_channel
+
     return null
 
 
 func _set(property: StringName, value: Variant) -> bool:
-    if property == PARCEL_CONTENTS:
-        parcel_contents = value
+    # if property == PARCEL_CONTENTS:
+    #     parcel_contents = value
+    #     return true
+    # if property == PARCEL_REQUEST:
+    #     parcel_request = value
+    #     return true
+    # if property == POSTCARD_CONTENTS:
+    #     postcard_contents = value
+    #     return true
+    # if property == POSTCARD_REQUEST:
+    #     postcard_request = value
+    #     return true
+
+    if property == "main/" + main_channel:
+        var dog = value
         return true
-    if property == PARCEL_REQUEST:
-        parcel_request = value
+    if property == "sub/" + sub_channel:
+        var cat = value
         return true
-    if property == POSTCARD_CONTENTS:
-        postcard_contents = value
-        return true
-    if property == POSTCARD_REQUEST:
-        postcard_request = value
-        return true
+
     return false
 
 

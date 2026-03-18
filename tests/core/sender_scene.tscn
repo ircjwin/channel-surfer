@@ -6,11 +6,7 @@
 
 [node name="ChannelSender" type="Node" parent="." unique_id=1078788347]
 script = ExtResource("1_l4dg6")
-react_sels = Array[String]([])
-parcel/contents = Array[String]([])
-parcel/request = Array[String]([])
-postcard/contents = Array[String]([])
-postcard/request = Array[String]([])
+method_switch_param_switch = null
 main = "None"
 sub = "None"
 metadata/_custom_type_script = "uid://nq1beii5xam4"

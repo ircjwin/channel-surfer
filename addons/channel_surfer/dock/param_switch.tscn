@@ -15,7 +15,8 @@ offset_bottom = 31.0
 size_flags_horizontal = 3
 script = ExtResource("1_umffq")
 
-[node name="TextEdit" type="TextEdit" parent="." unique_id=1142567698]
+[node name="VarTextEdit" type="TextEdit" parent="." unique_id=1142567698]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(90, 0)
 layout_mode = 2
 size_flags_horizontal = 3

@@ -5,9 +5,6 @@ extends Tree
 signal channel_map_changed(changed_map: Dictionary)
 signal channel_edited(new_name: String, old_name: String, parent_name: String)
 
-# @export var add_item_icon: Texture2D
-# @export var remove_item_icon: Texture2D
-
 const NEW_CHANNEL_TEXT: String = "new_channel"
 const ADD_MAIN_TEXT: String = "New Main..."
 const ADD_SUB_TEXT: String = "New Sub..."
@@ -25,7 +22,6 @@ var is_locked: bool = false
 var collapsed_items: Array[bool]
 
 @onready var switchboard: Control = %Switchboard
-
 @onready var add_item_icon = get_theme_icon("Add", &"EditorIcons")
 @onready var remove_item_icon = get_theme_icon("Remove", &"EditorIcons")
 
