@@ -10,11 +10,6 @@ extends Panel
 @onready var sub_hbox_container: HBoxContainer = %SubHBoxContainer
 @onready var sub_button: Button = %SubButton
 @onready var sub_option_button: OptionButton = %SubOptionButton
-
-@onready var method_v_box: VBoxContainer = %MethodVBox
-@onready var add_method_button: Button = %AddMethodButton
-@onready var method_switch_scene: PackedScene = preload("res://addons/channel_surfer/dock/method_switch.tscn")
-
 @onready var main_texture_rect: TextureRect = %MainTextureRect
 @onready var sub_texture_rect: TextureRect = %SubTextureRect
 
@@ -65,7 +60,6 @@ func _ready() -> void:
     sub_button.pressed.connect(_on_sub_button_pressed)
     main_option_button.item_selected.connect(_on_main_option_button_item_selected)
     sub_option_button.item_selected.connect(_on_sub_option_button_item_selected)
-    add_method_button.pressed.connect(_on_add_method_button_pressed)
 
 
 func _build_script(channel_name: String) -> void:
@@ -114,21 +108,19 @@ func _fill_sub_options() -> void:
         sub_option_button.add_item(sub_option.capitalize())
 
 
-func _on_add_method_button_pressed() -> void:
-    var method_switch_instance: FoldableContainer = method_switch_scene.instantiate()
-    method_v_box.add_child(method_switch_instance)
-    method_v_box.move_child(method_switch_instance, -2)
-
-
 func _on_root_button_pressed() -> void:
+    # Item Selected signal likely doesn't fire when item selected with code
+    # Need to verify that button text, option button selection, and tooltips reset/update
     main_button.hide()
     main_option_button.show()
     main_option_button.select(0)
+    main_button.text = main_option_button.get_item_text(0)
 
     sub_texture_rect.hide()
     sub_button.hide()
     sub_option_button.hide()
     sub_option_button.select(0)
+    sub_button.text = sub_option_button.get_item_text(0)
 
 
 func _on_main_button_pressed() -> void:

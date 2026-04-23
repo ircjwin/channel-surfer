@@ -202,6 +202,30 @@ func _on_item_mouse_selected(mouse_position: Vector2, mouse_button_index: int) -
             hide()
             switchboard.show()
 
+            # Need a method in switchboard to handle this
+            if item_parent != get_root():
+                switchboard.main_option_button.select(item_parent.get_index() + 1)
+                switchboard._fill_sub_options()
+                switchboard.sub_option_button.select(selected_item.get_index() + 1)
+                switchboard.main_button.text = switchboard.main_option_button.get_item_text(item_parent.get_index() + 1)
+                switchboard.sub_button.text = switchboard.sub_option_button.get_item_text(selected_item.get_index() + 1)
+
+                switchboard.main_option_button.hide()
+                switchboard.main_button.show()
+                switchboard.sub_option_button.show()
+                switchboard.sub_button.hide()
+                switchboard.sub_texture_rect.show()
+            else:
+                switchboard.main_option_button.select(selected_item.get_index() + 1)
+                switchboard._fill_sub_options()
+                switchboard.main_button.text = switchboard.main_option_button.get_item_text(selected_item.get_index() + 1)
+
+                switchboard.main_option_button.hide()
+                switchboard.main_button.show()
+                switchboard.sub_option_button.show()
+                switchboard.sub_button.hide()
+                switchboard.sub_texture_rect.show()
+
 
 func _make_unique(new_text: String, siblings: Array) -> String:
     var sorted_siblings: Array = siblings.duplicate_deep()

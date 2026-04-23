@@ -1,27 +1,20 @@
 [gd_scene format=3 uid="uid://ccleejua6e1m8"]
 
 [ext_resource type="Script" uid="uid://cn303fdinex8" path="res://addons/channel_surfer/dock/switchboard.gd" id="1_2cg3f"]
+[ext_resource type="Script" uid="uid://bpjl605gjuwgi" path="res://switch_tree.gd" id="2_esdtq"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7iiuo"]
-bg_color = Color(0.12941177, 0.14901961, 0.18039216, 1)
-
-[sub_resource type="DPITexture" id="DPITexture_2cg3f"]
+[sub_resource type="DPITexture" id="DPITexture_7iiuo"]
 _source = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\"><path fill=\"#ff5d5d\" d=\"M2 1v8.586l1.293-1.293a1 1 0 0 1 1.414 0L7 10.587l2.293-2.293a1 1 0 0 1 1.414 0L13 10.586l1-1V6H9V1H2zm8 0v4h4zm-6 9.414-2 2V15h12v-2.586l-.293.293a1 1 0 0 1-1.414 0L10 10.414l-2.293 2.293a1 1 0 0 1-1.414 0L4 10.414z\"/></svg>
 "
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_2cg3f"]
-bg_color = Color(0.078431375, 0.09019608, 0.10980392, 1)
-border_width_bottom = 1
-border_color = Color(1, 1, 1, 0.3019608)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_esdtq"]
-bg_color = Color(0.09803922, 0.1254902, 0.16078432, 1)
-border_width_bottom = 1
-border_color = Color(1, 1, 1, 0.3019608)
-
 [node name="Switchboard" type="Panel" unique_id=1952358337]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_7iiuo")
+size_flags_vertical = 3
 script = ExtResource("1_2cg3f")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=126960879]
@@ -52,7 +45,7 @@ text = "..."
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 4
-texture = SubResource("DPITexture_2cg3f")
+texture = SubResource("DPITexture_7iiuo")
 
 [node name="MainHBoxContainer" type="HBoxContainer" parent="VBoxContainer/MarginContainer/HBoxContainer" unique_id=539800941]
 unique_name_in_owner = true
@@ -89,7 +82,7 @@ unique_name_in_owner = true
 visible = false
 layout_mode = 2
 size_flags_vertical = 4
-texture = SubResource("DPITexture_2cg3f")
+texture = SubResource("DPITexture_7iiuo")
 
 [node name="SubHBoxContainer" type="HBoxContainer" parent="VBoxContainer/MarginContainer/HBoxContainer" unique_id=1137108683]
 unique_name_in_owner = true
@@ -123,32 +116,7 @@ popup/item_2/id = 2
 popup/item_3/text = "3"
 popup/item_3/id = 3
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer" unique_id=925793952]
-visible = false
-layout_mode = 2
-alignment = 2
-
-[node name="Button" type="Button" parent="VBoxContainer/HBoxContainer2" unique_id=1184949404]
-layout_mode = 2
-text = "O"
-
-[node name="Button2" type="Button" parent="VBoxContainer/HBoxContainer2" unique_id=120079841]
-layout_mode = 2
-text = "X"
-
-[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer" unique_id=625406965]
+[node name="SwitchTree" type="Tree" parent="VBoxContainer" unique_id=955883906]
 layout_mode = 2
 size_flags_vertical = 3
-
-[node name="MethodVBox" type="VBoxContainer" parent="VBoxContainer/ScrollContainer" unique_id=2075328713]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 3
-
-[node name="AddMethodButton" type="Button" parent="VBoxContainer/ScrollContainer/MethodVBox" unique_id=662313897]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_2cg3f")
-theme_override_styles/hover = SubResource("StyleBoxFlat_esdtq")
-text = "+ Add Method"
+script = ExtResource("2_esdtq")
