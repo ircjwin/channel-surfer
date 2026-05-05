@@ -2,20 +2,9 @@
 extends Tree
 
 
-# nothing_selected emits when left-click doesn't occur on Tree
-# empty_clicked emits when mouse clicks in empty space of Tree
-# snake_case for param names, universal type case
-# whitespace between param and type could be useful for StructuredTextParser
-# set_suffix could also provide type
-# get_selected_column for determining param or type
+# TODO: make _add_tree_item update and dispatch local data
 
-# Save sorted array of types and built-in classes
-# Global class list has to be checked each edit
-# Global class list might be sorted already
-# Clear then add items to PopupMenu as user types
-
-# Any click on the suggestions popup should probably select
-# Following hover should probably check mouse visibility
+signal switchboard_changed(new_board: Dictionary)
 
 const VARIANT_TYPES = [
 		TYPE_BOOL,
@@ -70,58 +59,51 @@ const DEV_CHANNEL_PREFIX: String = "cs_dev"
 const COMPONENT_GROUP: String = DEV_CHANNEL_PREFIX + "_component"
 
 var prev_item_text: String = ""
-var prev_hovered_item: TreeItem = null
-var is_hovering: bool = false
+var edited_type_text: String = ""
 var is_locked: bool = false
 var collapsed_items: Array[bool]
 var suggestions_array: Array
+var switchboard: Dictionary = {}
 
 @onready var add_item_icon = get_theme_icon("Add", &"EditorIcons")
 @onready var remove_item_icon = get_theme_icon("Remove", &"EditorIcons")
 @onready var tree_popup: Popup = find_child("*Popup*", true, false)
 @onready var tree_v_box: VBoxContainer = find_child("*VBoxContainer*", true, false)
 @onready var tree_line: LineEdit = find_child("*LineEdit*", true, false)
-@onready var tree_line_script: Script = preload("res://tree_line.gd")
-# @onready var suggestions_item_list: ItemList = find_child("ItemList", true, true)
+@onready var tree_line_script: Script = preload("res://addons/channel_surfer/dock/tree_line.gd")
 @onready var suggestions_item_list: ItemList = ItemList.new()
 @onready var suggestions_item_list_panel: StyleBoxFlat = suggestions_item_list.get_theme_stylebox("panel").duplicate()
 
 
 func _ready() -> void:
+	hide_root = true
 	columns = 2
 	set_column_expand(0, true)
 	set_column_expand(1, true)
 	set_column_expand_ratio(0, 2)
 	set_column_expand_ratio(1, 1)
 
-	item_mouse_selected.connect(_on_item_mouse_selected)
-	item_edited.connect(_on_item_edited)
-	item_activated.connect(_on_item_activated)
-	mouse_entered.connect(_on_mouse_entered)
-	mouse_exited.connect(_on_mouse_exited)
-	button_clicked.connect(_on_button_clicked)
-
-	clear()
-	var root: TreeItem = create_item()
-	hide_root = true
-	_create_item_adder(root, ADD_MAIN_TEXT, ADD_MAIN_COLOR)
 	_build_autocomplete()
 
 	tree_line.size_flags_vertical = Control.SIZE_FILL
 	tree_line.set_script(tree_line_script)
-	tree_line.text_changed.connect(_on_text_changed)
-
-	suggestions_item_list.empty_clicked.connect(_on_suggestions_item_list_empty_clicked)
-	suggestions_item_list.item_selected.connect(_on_suggestions_item_list_item_selected)
 
 	suggestions_item_list_panel.border_width_top = 1
 	suggestions_item_list_panel.border_width_bottom = 1
 	suggestions_item_list_panel.border_width_right = 1
 	suggestions_item_list_panel.border_width_left = 1
-
 	suggestions_item_list.add_theme_stylebox_override("panel", suggestions_item_list_panel)
+	suggestions_item_list.select_mode = ItemList.SELECT_SINGLE
 
+	item_mouse_selected.connect(_on_item_mouse_selected)
+	item_edited.connect(_on_item_edited)
+	item_activated.connect(_on_item_activated)
+	button_clicked.connect(_on_button_clicked)
 	tree_popup.popup_hide.connect(_on_tree_popup_popup_hide)
+	tree_line.text_changed.connect(_on_text_changed)
+	tree_line.text_submitted.connect(_on_tree_line_text_submitted)
+	# TODO: change to item_clicked to prevent side effects
+	suggestions_item_list.item_selected.connect(_on_suggestions_item_list_item_selected)
 
 
 func _process(_delta: float) -> void:
@@ -129,13 +111,54 @@ func _process(_delta: float) -> void:
 		tree_line.grab_focus()
 
 
+func _on_suggestions_item_list_item_selected(index: int) -> void:
+	edited_type_text = suggestions_item_list.get_item_text(index)
+
+
+func _on_tree_line_text_submitted(new_text: String) -> void:
+	var index: int = suggestions_item_list.get_selected_items()[0]
+	edited_type_text = suggestions_item_list.get_item_text(index)
+
+
+func _read_tree_item(item_parent: TreeItem, item_text_1: String, item_text_2: String = "") -> TreeItem:
+	var new_item: TreeItem = create_item(item_parent)
+
+	if item_parent == get_root():
+		item_text_2 = "args: 0"
+	else:
+		_update_arg_count(item_parent)
+
+	new_item.collapsed = true
+	new_item.set_text(FIRST_COLUMN, item_text_1)
+	new_item.set_text(SECOND_COLUMN, item_text_2)
+	new_item.add_button(SECOND_COLUMN, remove_item_icon)
+
+	return new_item
+
+
+func build_tree(new_board: Dictionary = {}) -> void:
+	clear()
+	create_item()
+
+	if not new_board.is_empty():
+		switchboard = new_board
+
+	for method_switch: String in switchboard.keys():
+		var new_method: TreeItem = _read_tree_item(get_root(), method_switch)
+		for param_switch: Dictionary in switchboard[method_switch]:
+			_read_tree_item(new_method, param_switch.get_or_add("name"), param_switch.get_or_add("type"))
+		_create_item_adder(new_method, ADD_SUB_TEXT, ADD_SUB_COLOR)
+
+	_create_item_adder(get_root(), ADD_MAIN_TEXT, ADD_MAIN_COLOR)
+
+
 func _build_autocomplete() -> void:
 	# Search suggestions then sort results; probably don't need local array
 	suggestions_array = VARIANT_TYPES.map(func(x): return type_string(x))
 	suggestions_array.append_array(ClassDB.get_class_list())
+	suggestions_array.append("Variant")
 	suggestions_array.sort()
 
-	# suggestions_item_list.reparent(tree_v_box)
 	tree_v_box.add_child(suggestions_item_list)
 	suggestions_item_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	suggestions_item_list.hide()
@@ -144,14 +167,6 @@ func _build_autocomplete() -> void:
 func _on_tree_popup_popup_hide() -> void:
 	suggestions_item_list.clear()
 	suggestions_item_list.hide()
-
-
-func _on_suggestions_item_list_empty_clicked(_at_position: Vector2, _mouse_button_index: int) -> void:
-	pass
-
-
-func _on_suggestions_item_list_item_selected(_index: int) -> void:
-	pass
 
 
 func _on_item_activated() -> void:
@@ -163,10 +178,13 @@ func _on_item_activated() -> void:
 	var item_parent: TreeItem = selected_item.get_parent()
 
 	if selected_item != item_parent.get_child(-1):
-		prev_item_text = selected_item.get_text(edited_column).to_snake_case()
-		selected_item.set_editable(edited_column, true)
-		edit_selected()
-		tree_line.custom_minimum_size = tree_v_box.size
+		if item_parent != get_root() or edited_column != SECOND_COLUMN:
+			prev_item_text = selected_item.get_text(edited_column)
+			selected_item.set_editable(edited_column, true)
+			edit_selected()
+
+			# Should only need this for col 2
+			tree_line.custom_minimum_size = tree_v_box.size
 
 
 func _on_text_changed(new_text: String) -> void:
@@ -185,6 +203,7 @@ func _on_text_changed(new_text: String) -> void:
 		if suggestion.containsn(new_text):
 			result.append(suggestion)
 
+	# TODO: front load suggestions that begin with new text, shortest to longest
 	for suggestion in ProjectSettings.get_global_class_list():
 		if suggestion["class"].containsn(new_text):
 			result.append(str(suggestion["class"]))
@@ -192,6 +211,7 @@ func _on_text_changed(new_text: String) -> void:
 	if result.is_empty():
 		return
 
+	# TODO: reconsider sorting after adjusting suggestions above
 	result.sort_custom(func(a, b): return a.naturalnocasecmp_to(b) < 0)
 
 	for suggestion in result:
@@ -209,19 +229,13 @@ func _on_text_changed(new_text: String) -> void:
 
 func _on_button_clicked(item: TreeItem, _column: int, _id: int, mouse_button_index: int) -> void:
 	if mouse_button_index == MOUSE_BUTTON_LEFT:
+		var item_parent: TreeItem = item.get_parent()
+		if item_parent == get_root():
+			switchboard.erase(item.get_text(FIRST_COLUMN))
+		else:
+			switchboard[item_parent.get_text(FIRST_COLUMN)].remove_at(item.get_index())
 		item.free()
-
-
-func _on_mouse_entered() -> void:
-	is_hovering = true
-
-
-func _on_mouse_exited() -> void:
-	if prev_hovered_item:
-		prev_hovered_item.clear_buttons()
-		prev_hovered_item = null
-
-	is_hovering = false
+		switchboard_changed.emit(switchboard)
 
 
 func _is_adder(item: TreeItem) -> bool:
@@ -233,32 +247,35 @@ func _is_adder(item: TreeItem) -> bool:
 	return false
 
 
-func _follow_hover() -> void:
-	var hovered_item: TreeItem = get_item_at_position(get_local_mouse_position())
-
-	if hovered_item == prev_hovered_item:
-		return
-
-	if prev_hovered_item:
-		prev_hovered_item.clear_buttons()
-
-	if hovered_item and not _is_adder(hovered_item):
-		hovered_item.add_button(SECOND_COLUMN, remove_item_icon)
-
-	prev_hovered_item = hovered_item
-
-
 func _on_item_edited() -> void:
+	# Need to ensure type is pulled from ItemList; likely text_submitted from tree_line
 	var edited_item: TreeItem = get_edited()
+	var edited_item_parent: TreeItem = edited_item.get_parent()
 	var edited_column: int = get_edited_column()
-	var edited_item_text: String = edited_item.get_text(edited_column).to_snake_case()
+	var edited_item_text: String = edited_item.get_text(edited_column)
+
+	if edited_column == FIRST_COLUMN:
+		edited_item_text = edited_item_text.to_snake_case()
 
 	edited_item.set_editable(edited_column, false)
 
 	if edited_item_text == prev_item_text:
 		return
 
-	edited_item.set_text(edited_column, edited_item_text.capitalize())
+	if edited_item_parent == get_root():
+		edited_item_text = _make_unique(edited_item_text, switchboard.keys())
+		switchboard.set(edited_item_text, switchboard[prev_item_text])
+		switchboard.erase(prev_item_text)
+	else:
+		if edited_column == FIRST_COLUMN:
+			edited_item_text = _make_unique(edited_item_text, switchboard[edited_item_parent].map(func(x): return x.name))
+			switchboard[edited_item_parent.get_text(FIRST_COLUMN)][edited_item.get_index()].set("name", edited_item_text)
+		else:
+			edited_item_text = edited_type_text
+			switchboard[edited_item_parent.get_text(FIRST_COLUMN)][edited_item.get_index()].set("type", edited_item_text)
+
+	edited_item.set_text(edited_column, edited_item_text)
+	switchboard_changed.emit(switchboard)
 
 
 func _on_item_mouse_selected(mouse_position: Vector2, mouse_button_index: int) -> void:
@@ -294,20 +311,27 @@ func _make_unique(new_text: String, siblings: Array) -> String:
 
 func _add_tree_item(item_parent: TreeItem, item_index: int) -> void:
 	var new_item: TreeItem = create_item(item_parent, item_index)
-	var channel_text: String = NEW_PARAM_TEXT
-	var param_text: String = "new_type"
+	var channel_text: String
+	var param_text: String
 
 	if item_parent == get_root():
-		channel_text = NEW_CHANNEL_TEXT
-		param_text = "args:_0"
+		channel_text = _make_unique(NEW_CHANNEL_TEXT, switchboard.keys())
+		param_text = "args: 0"
+		switchboard.set(channel_text, [])
 		_create_item_adder(new_item, ADD_SUB_TEXT, ADD_SUB_COLOR)
 	else:
+		var item_parent_text: String = item_parent.get_text(FIRST_COLUMN)
+		channel_text = _make_unique(NEW_PARAM_TEXT, switchboard[item_parent_text].map(func(x): return x.name))
+		param_text = "Variant"
+		switchboard[item_parent_text].append({"name": channel_text, "type": param_text})
 		_update_arg_count(item_parent)
 
-	new_item.set_text(FIRST_COLUMN, channel_text.capitalize())
-	new_item.set_text(SECOND_COLUMN, param_text.capitalize())
 	new_item.collapsed = true
+	new_item.set_text(FIRST_COLUMN, channel_text)
+	new_item.set_text(SECOND_COLUMN, param_text)
 	new_item.add_button(SECOND_COLUMN, remove_item_icon)
+
+	switchboard_changed.emit(switchboard)
 
 
 func _create_item_adder(adder_parent: TreeItem, adder_text: String, adder_bg_color: Color) -> void:

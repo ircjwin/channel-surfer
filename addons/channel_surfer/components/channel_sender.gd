@@ -20,9 +20,9 @@ var react_opts: Array[Callable] = []
 var react_sels: Array[String] = []
 
 
-func _ready() -> void:
-    react_opts.append(send_ping)
-    react_opts.append(send_parcel)
+# func _ready() -> void:
+#     react_opts.append(send_ping)
+#     react_opts.append(send_parcel)
 
 
 func _get_property_list() -> Array[Dictionary]:
@@ -103,8 +103,6 @@ func _get(property: StringName) -> Variant:
 
     if property == "main/" + main_channel:
         return main_channel
-    if property == "sub/" + sub_channel:
-        return sub_channel
 
     return null
 
@@ -126,20 +124,17 @@ func _set(property: StringName, value: Variant) -> bool:
     if property == "main/" + main_channel:
         var dog = value
         return true
-    if property == "sub/" + sub_channel:
-        var cat = value
-        return true
 
     return false
 
 
-func send_ping() -> void:
-    get_tree().call_group(_get_most_precise(), "receive_ping")
+# func send_ping() -> void:
+#     get_tree().call_group(_get_most_precise(), "receive_ping")
 
 
-func send_parcel() -> void:
-    if parcel_contents:
-        get_tree().call_group(_get_most_precise(), "receive_parcel", parcel_contents)
+# func send_parcel() -> void:
+#     if parcel_contents:
+#         get_tree().call_group(_get_most_precise(), "receive_parcel", parcel_contents)
 
 
 # func send_parcel_request() -> void:

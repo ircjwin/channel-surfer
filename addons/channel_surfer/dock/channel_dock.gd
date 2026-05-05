@@ -5,6 +5,8 @@ extends Control
 const CS_PATHS: Resource = preload("res://addons/channel_surfer/data/schema/cs_paths.gd")
 const CHANNEL_TREE_TYPE: Resource = preload(CS_PATHS.TREE_TYPE)
 const CHANNEL_DEBUG_TYPE: Resource = preload(CS_PATHS.DEBUG_TYPE)
+const SWITCHBOARD_TYPE: Resource = preload(CS_PATHS.SWITCHBOARD_TYPE)
+const SWITCH_TREE_TYPE: Resource = preload(CS_PATHS.SWITCH_TREE_TYPE)
 const CS_CONFIG_TYPE: Resource = preload(CS_PATHS.CONFIG_TYPE)
 const DEV_CHANNEL_PREFIX: String = "cs_dev"
 const DEBUG_GROUP: String = DEV_CHANNEL_PREFIX + "_debug"
@@ -18,12 +20,15 @@ const DEBUG_GROUP: String = DEV_CHANNEL_PREFIX + "_debug"
 @onready var settings_button: Button = %SettingsButton
 @onready var save_button: Button = %SaveButton
 @onready var channel_tab: HBoxContainer = %ChannelTab
-@onready var switchboard: Control = %Switchboard
+@onready var switchboard: SWITCHBOARD_TYPE = %Switchboard
+@onready var switch_tree: SWITCH_TREE_TYPE = %SwitchTree
+@onready var add_channel_button: Button = %AddChannelButton
 
 @onready var locked_icon = get_theme_icon("Lock", &"EditorIcons")
 @onready var unlocked_icon = get_theme_icon("Unlock", &"EditorIcons")
 @onready var debug_icon = get_theme_icon("Debug", &"EditorIcons")
 @onready var alert_icon = get_theme_icon("StatusWarning", &"EditorIcons")
+@onready var add_icon = get_theme_icon("Add", &"EditorIcons")
 
 var cs_config: CS_CONFIG_TYPE
 var is_modified: bool = false
@@ -36,40 +41,62 @@ func _enter_tree() -> void:
 
 func _ready() -> void:
     save_button.icon = get_theme_icon("Save", &"EditorIcons")
+    add_channel_button.icon = add_icon
     channel_debug.hide()
     channel_tab.show()
     lock_button.show()
 
-    channel_debug.alerts_filled.connect(_on_alerts_filled)
-    channel_debug.alerts_cleared.connect(_on_alerts_cleared)
-    channel_debug.instance_map_changed.connect(_on_instance_map_changed)
+    # channel_debug.alerts_filled.connect(_on_alerts_filled)
+    # channel_debug.alerts_cleared.connect(_on_alerts_cleared)
+    # channel_debug.instance_map_changed.connect(_on_instance_map_changed)
     channel_button.pressed.connect(_on_channel_button_pressed)
     debug_button.pressed.connect(_on_debug_button_pressed)
     lock_button.pressed.connect(_on_lock_button_pressed)
     settings_button.pressed.connect(_on_settings_button_pressed)
     channel_tree.channel_map_changed.connect(_on_channel_map_changed)
-    channel_tree.channel_edited.connect(_on_channel_edited)
+    # channel_tree.channel_edited.connect(_on_channel_edited)
     channel_settings.auto_update_check_box.toggled.connect(_on_channel_settings_auto_update_toggled)
     save_button.pressed.connect(_on_save_button_pressed)
+    channel_tree.channel_rmb_selected.connect(_on_channel_tree_channel_rmb_selected)
+    switchboard.switchboard_selected.connect(_on_switchboard_switchboard_selected)
 
     _load_config()
     _set_lock_button_icon()
     channel_tree.is_locked = cs_config.is_channel_locked
 
-    var instance_map: Dictionary = _load_instance_map()
-    channel_debug.set_instance_map(instance_map)
+    # var instance_map: Dictionary = _load_instance_map()
+    # channel_debug.set_instance_map(instance_map)
 
     var channel_map: Dictionary = _load_channel_map()
     channel_tree.build_tree(channel_map)
-    channel_debug.update_alerts(channel_map)
+    # channel_debug.update_alerts(channel_map)
 
     var temp_dir: DirAccess = DirAccess.open("res://")
     if not temp_dir.dir_exists(CS_PATHS.TEMP_STORE):
         temp_dir.make_dir(CS_PATHS.TEMP_STORE)
 
     switchboard.fill_options(channel_map)
-    var switch_map: Dictionary = _load_switch_map()
-    switchboard.fill_switches(switch_map)
+    # var switch_map: Dictionary = _load_switch_map()
+    # switchboard.fill_switches(switch_map)
+
+    switch_tree.switchboard_changed.connect(_on_switch_tree_switchboard_changed)
+
+
+func _on_switch_tree_switchboard_changed(new_board: Dictionary) -> void:
+    var board_index: int = switchboard.main_option_button.selected
+    var board_name: String = switchboard.main_option_button.get_item_text(board_index).to_snake_case()
+    var channel_map: Dictionary = channel_tree.get_channel_map()
+    channel_map.set(board_name, new_board)
+    _on_channel_map_changed(channel_map)
+    channel_tree.build_tree(channel_map)
+
+
+func _on_switchboard_switchboard_selected(name: String) -> void:
+    switchboard.fill_board(channel_tree.get_channel_map()[name])
+
+
+func _on_channel_tree_channel_rmb_selected(name: String) -> void:
+    switchboard.fill_board(channel_tree.get_channel_map()[name])
 
 
 func _on_save_button_pressed() -> void:
@@ -158,7 +185,7 @@ func _on_channel_map_changed(channel_map: Dictionary) -> void:
     file.store_string(JSON.stringify(JSON.from_native(channel_map, true), "\t"))
     file.close()
 
-    channel_debug.update_alerts(channel_map)
+    # channel_debug.update_alerts(channel_map)
 
 
 func _on_lock_button_pressed() -> void:

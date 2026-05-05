@@ -9,6 +9,9 @@ const DEBUG_TYPE: String =          "res://addons/channel_surfer/dock/channel_de
 const INSTANCE_TYPE: String =       "res://addons/channel_surfer/data/schema/instance_log.gd"
 const CSUID_TYPE: String =          "res://addons/channel_surfer/dock/cs_uid.gd"
 const CONFIG_TYPE: String =         "res://addons/channel_surfer/data/schema/cs_config.gd"
+# const SWITCHBOARD_TYPE: String =    "res://addons/channel_surfer/dock/switchboard.gd"
+const SWITCHBOARD_TYPE: String =    "res://addons/channel_surfer/dock/switchboard_vbox.gd"
+const SWITCH_TREE_TYPE: String =    "res://addons/channel_surfer/dock/switch_tree.gd"
 
 
 ## DATA STORES

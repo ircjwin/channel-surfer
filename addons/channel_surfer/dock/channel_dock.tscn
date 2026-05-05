@@ -1,15 +1,20 @@
 [gd_scene format=3 uid="uid://b11jfnrqpx205"]
 
 [ext_resource type="Script" uid="uid://dnxyonvfbv0xo" path="res://addons/channel_surfer/dock/channel_dock.gd" id="1_t706h"]
+[ext_resource type="Script" uid="uid://cfsyxh23qvyrx" path="res://addons/channel_surfer/dock/channel_tree.gd" id="4_pyvmt"]
+[ext_resource type="Script" uid="uid://bpjl605gjuwgi" path="res://addons/channel_surfer/dock/switch_tree.gd" id="6_6u8u5"]
+[ext_resource type="Script" uid="uid://dnda6s38krfsg" path="res://addons/channel_surfer/dock/switchboard_vbox.gd" id="6_m6n06"]
 [ext_resource type="Texture2D" uid="uid://vc3v02y8u6u0" path="res://addons/channel_surfer/assets/channel_icon.png" id="6_uu6rb"]
 [ext_resource type="Script" uid="uid://cew3ho020igpg" path="res://addons/channel_surfer/dock/channel_tab.gd" id="7_w2ev3"]
-[ext_resource type="Script" uid="uid://cfsyxh23qvyrx" path="res://addons/channel_surfer/dock/channel_tree.gd" id="9_sycqf"]
 [ext_resource type="Script" uid="uid://bbbqt2g1m1xka" path="res://addons/channel_surfer/dock/channel_debug.gd" id="12_yodnt"]
 [ext_resource type="Texture2D" uid="uid://cbqw1pa0vm3wr" path="res://addons/channel_surfer/assets/settings_icon.png" id="13_7qho6"]
-[ext_resource type="PackedScene" uid="uid://ccleejua6e1m8" path="res://addons/channel_surfer/dock/switchboard.tscn" id="13_gyqtw"]
 [ext_resource type="Script" uid="uid://c30txb8uqumcx" path="res://addons/channel_surfer/dock/channel_settings.gd" id="13_n3fpa"]
 
 [sub_resource type="DPITexture" id="DPITexture_pyvmt"]
+_source = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\"><path fill=\"#ff5d5d\" d=\"M2 1v8.586l1.293-1.293a1 1 0 0 1 1.414 0L7 10.587l2.293-2.293a1 1 0 0 1 1.414 0L13 10.586l1-1V6H9V1H2zm8 0v4h4zm-6 9.414-2 2V15h12v-2.586l-.293.293a1 1 0 0 1-1.414 0L10 10.414l-2.293 2.293a1 1 0 0 1-1.414 0L4 10.414z\"/></svg>
+"
+
+[sub_resource type="DPITexture" id="DPITexture_6u8u5"]
 _source = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\"><path fill=\"#ff5d5d\" d=\"M2 1v8.586l1.293-1.293a1 1 0 0 1 1.414 0L7 10.587l2.293-2.293a1 1 0 0 1 1.414 0L13 10.586l1-1V6H9V1H2zm8 0v4h4zm-6 9.414-2 2V15h12v-2.586l-.293.293a1 1 0 0 1-1.414 0L10 10.414l-2.293 2.293a1 1 0 0 1-1.414 0L4 10.414z\"/></svg>
 "
 
@@ -53,27 +58,69 @@ layout_mode = 2
 size_flags_vertical = 3
 script = ExtResource("7_w2ev3")
 
-[node name="ChannelTree" type="Tree" parent="VBoxContainer/ChannelTab" unique_id=1069465193]
+[node name="ChannelDirectory" type="VBoxContainer" parent="VBoxContainer/ChannelTab" unique_id=1918384471]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/ChannelTab/ChannelDirectory" unique_id=1319713699]
+layout_mode = 2
+
+[node name="LineEdit" type="LineEdit" parent="VBoxContainer/ChannelTab/ChannelDirectory/HBoxContainer" unique_id=519998728]
+custom_minimum_size = Vector2(0, 31)
+layout_mode = 2
+size_flags_horizontal = 3
+keep_editing_on_text_submit = true
+
+[node name="AddChannelButton" type="Button" parent="VBoxContainer/ChannelTab/ChannelDirectory/HBoxContainer" unique_id=954009767]
+unique_name_in_owner = true
+layout_mode = 2
+icon = SubResource("DPITexture_6u8u5")
+
+[node name="ChannelTree" type="Tree" parent="VBoxContainer/ChannelTab/ChannelDirectory" unique_id=1900952944]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_colors/guide_color = Color(1, 1, 1, 0.3)
-theme_override_constants/draw_guides = 1
-theme_override_constants/draw_relationship_lines = 0
 allow_rmb_select = true
 hide_root = true
-script = ExtResource("9_sycqf")
+script = ExtResource("4_pyvmt")
 
 [node name="BackForthButton" type="Button" parent="VBoxContainer/ChannelTab" unique_id=575903945]
 unique_name_in_owner = true
 layout_mode = 2
-icon = SubResource("DPITexture_pyvmt")
+icon = SubResource("DPITexture_6u8u5")
 
-[node name="Switchboard" parent="VBoxContainer/ChannelTab" unique_id=1683635322 instance=ExtResource("13_gyqtw")]
+[node name="Switchboard" type="VBoxContainer" parent="VBoxContainer/ChannelTab" unique_id=12980455]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
+size_flags_horizontal = 3
+script = ExtResource("6_m6n06")
+
+[node name="MainOptionButton" type="OptionButton" parent="VBoxContainer/ChannelTab/Switchboard" unique_id=654187935]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 31)
+layout_mode = 2
+selected = 0
+item_count = 4
+popup/item_0/text = "..."
+popup/item_0/id = 0
+popup/item_1/text = "Honey"
+popup/item_1/id = 1
+popup/item_2/text = "Doug"
+popup/item_2/id = 2
+popup/item_3/text = "Almond"
+popup/item_3/id = 3
+
+[node name="SwitchTree" type="Tree" parent="VBoxContainer/ChannelTab/Switchboard" unique_id=1724457680]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+columns = 2
+hide_root = true
+script = ExtResource("6_6u8u5")
 
 [node name="ChannelDebug" type="Tree" parent="VBoxContainer" unique_id=95621350]
 unique_name_in_owner = true
@@ -111,14 +158,14 @@ alignment = 2
 [node name="SaveButton" type="Button" parent="VBoxContainer/SettingsHBox" unique_id=1940130612]
 unique_name_in_owner = true
 layout_mode = 2
-icon = SubResource("DPITexture_pyvmt")
+icon = SubResource("DPITexture_6u8u5")
 
 [node name="LockButton" type="Button" parent="VBoxContainer/SettingsHBox" unique_id=1427363302]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 8
 size_flags_vertical = 8
-icon = SubResource("DPITexture_pyvmt")
+icon = SubResource("DPITexture_6u8u5")
 
 [node name="SettingsButton" type="Button" parent="VBoxContainer/SettingsHBox" unique_id=1233734742]
 unique_name_in_owner = true
