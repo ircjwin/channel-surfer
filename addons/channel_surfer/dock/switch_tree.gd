@@ -30,7 +30,6 @@ const VARIANT_TYPES = [
 		TYPE_STRING_NAME,
 		TYPE_NODE_PATH,
 		TYPE_RID,
-		TYPE_OBJECT,
 		TYPE_CALLABLE,
 		TYPE_SIGNAL,
 		TYPE_DICTIONARY,
@@ -47,12 +46,13 @@ const VARIANT_TYPES = [
 		TYPE_PACKED_VECTOR4_ARRAY,
 ]
 
-const NEW_CHANNEL_TEXT: String = "new_method"
+const NEW_METHOD_TEXT: String = "new_method"
 const NEW_PARAM_TEXT: String = "new_paramater"
-const ADD_MAIN_TEXT: String = "New Method..."
-const ADD_SUB_TEXT: String = "New Parameter..."
-const ADD_MAIN_COLOR: Color = Color(0, 0, 0, 0.4)
-const ADD_SUB_COLOR: Color = Color(0, 0, 0, 0.2)
+const ADD_METHOD_TEXT: String = "New Method..."
+const ADD_PARAM_TEXT: String = "New Parameter..."
+const NEW_TYPE_TEXT: String = "Variant"
+const ADD_METHOD_COLOR: Color = Color(0, 0, 0, 0.4)
+const ADD_PARAM_COLOR: Color = Color(0, 0, 0, 0.2)
 const FIRST_COLUMN: int = 0
 const SECOND_COLUMN: int = 1
 const DEV_CHANNEL_PREFIX: String = "cs_dev"
@@ -100,10 +100,9 @@ func _ready() -> void:
 	item_activated.connect(_on_item_activated)
 	button_clicked.connect(_on_button_clicked)
 	tree_popup.popup_hide.connect(_on_tree_popup_popup_hide)
+	tree_popup.window_input.connect(_on_tree_popup_window_input)
 	tree_line.text_changed.connect(_on_text_changed)
-	tree_line.text_submitted.connect(_on_tree_line_text_submitted)
-	# TODO: change to item_clicked to prevent side effects
-	suggestions_item_list.item_selected.connect(_on_suggestions_item_list_item_selected)
+	suggestions_item_list.item_clicked.connect(_on_suggestions_item_list_item_clicked)
 
 
 func _process(_delta: float) -> void:
@@ -111,13 +110,25 @@ func _process(_delta: float) -> void:
 		tree_line.grab_focus()
 
 
-func _on_suggestions_item_list_item_selected(index: int) -> void:
-	edited_type_text = suggestions_item_list.get_item_text(index)
+func _on_tree_popup_window_input(event: InputEvent) -> void:
+	if suggestions_item_list.visible and suggestions_item_list.is_anything_selected():
+		var index: int = suggestions_item_list.get_selected_items()[0]
+		if event.is_action_pressed("ui_text_caret_up"):
+			if index > 0:
+				index -= 1
+				suggestions_item_list.select(index)
+		elif event.is_action_pressed("ui_text_caret_down"):
+			if index < suggestions_item_list.item_count - 1:
+				index += 1
+				suggestions_item_list.select(index)
+		edited_type_text = suggestions_item_list.get_item_text(index)
+		suggestions_item_list.ensure_current_is_visible()
 
 
-func _on_tree_line_text_submitted(new_text: String) -> void:
-	var index: int = suggestions_item_list.get_selected_items()[0]
-	edited_type_text = suggestions_item_list.get_item_text(index)
+func _on_suggestions_item_list_item_clicked(index: int, at_position: Vector2, mouse_button_index: int) -> void:
+	if mouse_button_index == MOUSE_BUTTON_LEFT:
+		edited_type_text = suggestions_item_list.get_item_text(index)
+		tree_line.text_submitted.emit(edited_type_text)
 
 
 func _read_tree_item(item_parent: TreeItem, item_text_1: String, item_text_2: String = "") -> TreeItem:
@@ -126,7 +137,7 @@ func _read_tree_item(item_parent: TreeItem, item_text_1: String, item_text_2: St
 	if item_parent == get_root():
 		item_text_2 = "args: 0"
 	else:
-		_update_arg_count(item_parent)
+		_inc_arg_count(item_parent)
 
 	new_item.collapsed = true
 	new_item.set_text(FIRST_COLUMN, item_text_1)
@@ -147,16 +158,16 @@ func build_tree(new_board: Dictionary = {}) -> void:
 		var new_method: TreeItem = _read_tree_item(get_root(), method_switch)
 		for param_switch: Dictionary in switchboard[method_switch]:
 			_read_tree_item(new_method, param_switch.get_or_add("name"), param_switch.get_or_add("type"))
-		_create_item_adder(new_method, ADD_SUB_TEXT, ADD_SUB_COLOR)
+		_create_item_adder(new_method, ADD_PARAM_TEXT, ADD_PARAM_COLOR)
 
-	_create_item_adder(get_root(), ADD_MAIN_TEXT, ADD_MAIN_COLOR)
+	_create_item_adder(get_root(), ADD_METHOD_TEXT, ADD_METHOD_COLOR)
 
 
 func _build_autocomplete() -> void:
 	# Search suggestions then sort results; probably don't need local array
 	suggestions_array = VARIANT_TYPES.map(func(x): return type_string(x))
 	suggestions_array.append_array(ClassDB.get_class_list())
-	suggestions_array.append("Variant")
+	suggestions_array.append(NEW_TYPE_TEXT)
 	suggestions_array.sort()
 
 	tree_v_box.add_child(suggestions_item_list)
@@ -188,12 +199,13 @@ func _on_item_activated() -> void:
 
 
 func _on_text_changed(new_text: String) -> void:
-	if get_selected_column() != SECOND_COLUMN or get_selected().get_parent() == get_root():
+	if get_selected().get_parent() == get_root() or get_selected_column() == FIRST_COLUMN:
 		return
 
 	suggestions_item_list.clear()
 	suggestions_item_list.hide()
 	tree_popup.reset_size()
+	edited_type_text = ""
 
 	if new_text.is_empty():
 		return
@@ -212,7 +224,8 @@ func _on_text_changed(new_text: String) -> void:
 		return
 
 	# TODO: reconsider sorting after adjusting suggestions above
-	result.sort_custom(func(a, b): return a.naturalnocasecmp_to(b) < 0)
+	# result.sort_custom(func(a, b): return a.naturalnocasecmp_to(b) < 0)
+	result.sort_custom(func(a, b): return len(a) < len(b))
 
 	for suggestion in result:
 		suggestions_item_list.add_item(suggestion)
@@ -225,6 +238,8 @@ func _on_text_changed(new_text: String) -> void:
 	tree_v_box.reset_size()
 	await get_tree().process_frame
 	tree_popup.reset_size()
+	suggestions_item_list.select(0)
+	edited_type_text = suggestions_item_list.get_item_text(0)
 
 
 func _on_button_clicked(item: TreeItem, _column: int, _id: int, mouse_button_index: int) -> void:
@@ -234,6 +249,8 @@ func _on_button_clicked(item: TreeItem, _column: int, _id: int, mouse_button_ind
 			switchboard.erase(item.get_text(FIRST_COLUMN))
 		else:
 			switchboard[item_parent.get_text(FIRST_COLUMN)].remove_at(item.get_index())
+			_dec_arg_count(item_parent)
+
 		item.free()
 		switchboard_changed.emit(switchboard)
 
@@ -248,14 +265,13 @@ func _is_adder(item: TreeItem) -> bool:
 
 
 func _on_item_edited() -> void:
-	# Need to ensure type is pulled from ItemList; likely text_submitted from tree_line
 	var edited_item: TreeItem = get_edited()
 	var edited_item_parent: TreeItem = edited_item.get_parent()
 	var edited_column: int = get_edited_column()
 	var edited_item_text: String = edited_item.get_text(edited_column)
 
 	if edited_column == FIRST_COLUMN:
-		edited_item_text = edited_item_text.to_snake_case()
+		edited_item_text = edited_item_text.strip_edges().to_snake_case()
 
 	edited_item.set_editable(edited_column, false)
 
@@ -263,17 +279,35 @@ func _on_item_edited() -> void:
 		return
 
 	if edited_item_parent == get_root():
-		edited_item_text = _make_unique(edited_item_text, switchboard.keys())
-		switchboard.set(edited_item_text, switchboard[prev_item_text])
-		switchboard.erase(prev_item_text)
-	else:
-		if edited_column == FIRST_COLUMN:
-			edited_item_text = _make_unique(edited_item_text, switchboard[edited_item_parent].map(func(x): return x.name))
-			switchboard[edited_item_parent.get_text(FIRST_COLUMN)][edited_item.get_index()].set("name", edited_item_text)
-		else:
-			edited_item_text = edited_type_text
-			switchboard[edited_item_parent.get_text(FIRST_COLUMN)][edited_item.get_index()].set("type", edited_item_text)
+		if edited_item_text.is_empty():
+			edited_item_text = NEW_METHOD_TEXT
 
+		var method_siblings: Array = switchboard.keys()
+		method_siblings.erase(prev_item_text)
+		edited_item_text = _make_unique(edited_item_text, method_siblings)
+
+		var param_array: Array = switchboard[prev_item_text]
+		switchboard.erase(prev_item_text)
+		switchboard.set(edited_item_text, param_array)
+	else:
+		if edited_item_text.is_empty():
+			edited_item_text = NEW_PARAM_TEXT
+
+		var edited_item_parent_text: String = edited_item_parent.get_text(FIRST_COLUMN)
+		var param_siblings: Array = switchboard[edited_item_parent_text].map(func(x): return x.name)
+		param_siblings.erase(prev_item_text)
+
+		if edited_column == FIRST_COLUMN:
+			edited_item_text = _make_unique(edited_item_text, param_siblings)
+			switchboard[edited_item_parent_text][edited_item.get_index()].set("name", edited_item_text)
+		else:
+			if edited_item_text.is_empty():
+				edited_type_text = NEW_TYPE_TEXT
+
+			edited_item_text = edited_type_text
+			switchboard[edited_item_parent_text][edited_item.get_index()].set("type", edited_item_text)
+
+	edited_type_text = ""
 	edited_item.set_text(edited_column, edited_item_text)
 	switchboard_changed.emit(switchboard)
 
@@ -315,16 +349,16 @@ func _add_tree_item(item_parent: TreeItem, item_index: int) -> void:
 	var param_text: String
 
 	if item_parent == get_root():
-		channel_text = _make_unique(NEW_CHANNEL_TEXT, switchboard.keys())
+		channel_text = _make_unique(NEW_METHOD_TEXT, switchboard.keys())
 		param_text = "args: 0"
 		switchboard.set(channel_text, [])
-		_create_item_adder(new_item, ADD_SUB_TEXT, ADD_SUB_COLOR)
+		_create_item_adder(new_item, ADD_PARAM_TEXT, ADD_PARAM_COLOR)
 	else:
 		var item_parent_text: String = item_parent.get_text(FIRST_COLUMN)
 		channel_text = _make_unique(NEW_PARAM_TEXT, switchboard[item_parent_text].map(func(x): return x.name))
-		param_text = "Variant"
+		param_text = NEW_TYPE_TEXT
 		switchboard[item_parent_text].append({"name": channel_text, "type": param_text})
-		_update_arg_count(item_parent)
+		_inc_arg_count(item_parent)
 
 	new_item.collapsed = true
 	new_item.set_text(FIRST_COLUMN, channel_text)
@@ -346,9 +380,17 @@ func _create_item_adder(adder_parent: TreeItem, adder_text: String, adder_bg_col
 	new_item_adder.set_selectable(SECOND_COLUMN, false)
 
 
-func _update_arg_count(method_item: TreeItem) -> void:
+func _inc_arg_count(method_item: TreeItem) -> void:
+	_update_arg_count(method_item, 1)
+
+
+func _dec_arg_count(method_item) -> void:
+	_update_arg_count(method_item, -1)
+
+
+func _update_arg_count(method_item: TreeItem, adjustment: int) -> void:
 	var arg_text: String = method_item.get_text(SECOND_COLUMN).to_snake_case()
-	var arg_int: int = arg_text.trim_prefix("args:_").to_int()
-	arg_int += 1
-	var new_arg_text: String = "args:_%d" % arg_int
-	method_item.set_text(SECOND_COLUMN, new_arg_text.capitalize())
+	var arg_int: int = arg_text.trim_prefix("args: ").to_int()
+	arg_int += adjustment
+	var new_arg_text: String = "args: %d" % arg_int
+	method_item.set_text(SECOND_COLUMN, new_arg_text)

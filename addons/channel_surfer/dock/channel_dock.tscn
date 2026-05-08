@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://dnxyonvfbv0xo" path="res://addons/channel_surfer/dock/channel_dock.gd" id="1_t706h"]
 [ext_resource type="Script" uid="uid://cfsyxh23qvyrx" path="res://addons/channel_surfer/dock/channel_tree.gd" id="4_pyvmt"]
 [ext_resource type="Script" uid="uid://bpjl605gjuwgi" path="res://addons/channel_surfer/dock/switch_tree.gd" id="6_6u8u5"]
-[ext_resource type="Script" uid="uid://dnda6s38krfsg" path="res://addons/channel_surfer/dock/switchboard_vbox.gd" id="6_m6n06"]
+[ext_resource type="Script" uid="uid://dnda6s38krfsg" path="res://addons/channel_surfer/dock/switchboard.gd" id="6_m6n06"]
 [ext_resource type="Texture2D" uid="uid://vc3v02y8u6u0" path="res://addons/channel_surfer/assets/channel_icon.png" id="6_uu6rb"]
 [ext_resource type="Script" uid="uid://cew3ho020igpg" path="res://addons/channel_surfer/dock/channel_tab.gd" id="7_w2ev3"]
 [ext_resource type="Script" uid="uid://bbbqt2g1m1xka" path="res://addons/channel_surfer/dock/channel_debug.gd" id="12_yodnt"]
@@ -104,15 +104,13 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 31)
 layout_mode = 2
 selected = 0
-item_count = 4
+item_count = 3
 popup/item_0/text = "..."
 popup/item_0/id = 0
-popup/item_1/text = "Honey"
+popup/item_1/text = "1"
 popup/item_1/id = 1
-popup/item_2/text = "Doug"
+popup/item_2/text = "2"
 popup/item_2/id = 2
-popup/item_3/text = "Almond"
-popup/item_3/id = 3
 
 [node name="SwitchTree" type="Tree" parent="VBoxContainer/ChannelTab/Switchboard" unique_id=1724457680]
 unique_name_in_owner = true

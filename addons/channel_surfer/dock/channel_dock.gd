@@ -185,6 +185,7 @@ func _on_channel_map_changed(channel_map: Dictionary) -> void:
     file.store_string(JSON.stringify(JSON.from_native(channel_map, true), "\t"))
     file.close()
 
+    switchboard.fill_options(channel_map)
     # channel_debug.update_alerts(channel_map)
 
 

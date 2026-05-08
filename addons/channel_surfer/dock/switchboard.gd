@@ -1,14 +1,15 @@
 @tool
-extends Panel
+extends VBoxContainer
 
 
 signal switchboard_selected(name: String)
 
 @onready var main_option_button: OptionButton = %MainOptionButton
-@onready var switch_tree: Tree = %SwitchTree
+@onready var switch_tree: SWITCH_TREE_TYPE = %SwitchTree
 
 const CS_PATHS: Resource = preload("res://addons/channel_surfer/data/schema/cs_paths.gd")
 const SWITCH_DIR: String = CS_PATHS.SWITCH_DIR
+const SWITCH_TREE_TYPE: Resource = preload("res://addons/channel_surfer/dock/switch_tree.gd")
 const SCRIPT_NAME = "SCRIPT_NAME"
 const FUNC_COMMENT = "FUNC_COMMENT"
 const FUNC_NAME = "FUNC_NAME"
@@ -40,6 +41,14 @@ var channel_map: Dictionary
 
 func _ready() -> void:
     main_option_button.item_selected.connect(_on_main_option_button_item_selected)
+    visibility_changed.connect(_on_visibility_changed)
+
+
+func _on_visibility_changed() -> void:
+    if not visible:
+        switch_tree.switchboard = {}
+        switch_tree.clear()
+        main_option_button.select(0)
 
 
 func _build_script(channel_name: String) -> void:

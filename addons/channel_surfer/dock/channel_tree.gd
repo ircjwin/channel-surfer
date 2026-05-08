@@ -106,6 +106,9 @@ func _on_item_activated() -> void:
 
 
 func _on_item_edited() -> void:
+    # TODO: strip edges
+    # TODO: handle text submission on focus loss
+	# TODO: handle empty text submission
     var edited_item: TreeItem = get_edited()
     var item_parent: TreeItem = edited_item.get_parent()
     var edited_item_text: String = edited_item.get_text(FIRST_COLUMN).to_snake_case()
