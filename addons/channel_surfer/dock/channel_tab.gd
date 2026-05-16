@@ -9,8 +9,6 @@ const SWITCHBOARD_TYPE: Resource = preload(CS_PATHS.SWITCHBOARD_TYPE)
 @onready var channel_tree: CHANNEL_TREE_TYPE = %ChannelTree
 @onready var switchboard: SWITCHBOARD_TYPE = %Switchboard
 @onready var back_forth_button: Button = %BackForthButton
-
-#TODO: use unique %
 @onready var channel_directory: VBoxContainer = %ChannelDirectory
 @onready var forward_icon = get_theme_icon("Forward", &"EditorIcons")
 @onready var backward_icon = get_theme_icon("Back", &"EditorIcons")

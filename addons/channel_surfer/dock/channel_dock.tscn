@@ -6,6 +6,8 @@
 [ext_resource type="Script" uid="uid://dnda6s38krfsg" path="res://addons/channel_surfer/dock/switchboard.gd" id="6_m6n06"]
 [ext_resource type="Texture2D" uid="uid://vc3v02y8u6u0" path="res://addons/channel_surfer/assets/channel_icon.png" id="6_uu6rb"]
 [ext_resource type="Script" uid="uid://cew3ho020igpg" path="res://addons/channel_surfer/dock/channel_tab.gd" id="7_w2ev3"]
+[ext_resource type="Script" uid="uid://dprb6pejlyokl" path="res://addons/channel_surfer/dock/dispatcher.gd" id="10_m6n06"]
+[ext_resource type="Script" uid="uid://c6g3rlmjqsndh" path="res://addons/channel_surfer/dock/script_writer.gd" id="11_0clc7"]
 [ext_resource type="Script" uid="uid://bbbqt2g1m1xka" path="res://addons/channel_surfer/dock/channel_debug.gd" id="12_yodnt"]
 [ext_resource type="Texture2D" uid="uid://cbqw1pa0vm3wr" path="res://addons/channel_surfer/assets/settings_icon.png" id="13_7qho6"]
 [ext_resource type="Script" uid="uid://c30txb8uqumcx" path="res://addons/channel_surfer/dock/channel_settings.gd" id="13_n3fpa"]
@@ -14,7 +16,7 @@
 _source = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\"><path fill=\"#ff5d5d\" d=\"M2 1v8.586l1.293-1.293a1 1 0 0 1 1.414 0L7 10.587l2.293-2.293a1 1 0 0 1 1.414 0L13 10.586l1-1V6H9V1H2zm8 0v4h4zm-6 9.414-2 2V15h12v-2.586l-.293.293a1 1 0 0 1-1.414 0L10 10.414l-2.293 2.293a1 1 0 0 1-1.414 0L4 10.414z\"/></svg>
 "
 
-[sub_resource type="DPITexture" id="DPITexture_6u8u5"]
+[sub_resource type="DPITexture" id="DPITexture_nv4la"]
 _source = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\"><path fill=\"#ff5d5d\" d=\"M2 1v8.586l1.293-1.293a1 1 0 0 1 1.414 0L7 10.587l2.293-2.293a1 1 0 0 1 1.414 0L13 10.586l1-1V6H9V1H2zm8 0v4h4zm-6 9.414-2 2V15h12v-2.586l-.293.293a1 1 0 0 1-1.414 0L10 10.414l-2.293 2.293a1 1 0 0 1-1.414 0L4 10.414z\"/></svg>
 "
 
@@ -75,7 +77,7 @@ keep_editing_on_text_submit = true
 [node name="AddChannelButton" type="Button" parent="VBoxContainer/ChannelTab/ChannelDirectory/HBoxContainer" unique_id=954009767]
 unique_name_in_owner = true
 layout_mode = 2
-icon = SubResource("DPITexture_6u8u5")
+icon = SubResource("DPITexture_nv4la")
 
 [node name="ChannelTree" type="Tree" parent="VBoxContainer/ChannelTab/ChannelDirectory" unique_id=1900952944]
 unique_name_in_owner = true
@@ -90,7 +92,7 @@ script = ExtResource("4_pyvmt")
 [node name="BackForthButton" type="Button" parent="VBoxContainer/ChannelTab" unique_id=575903945]
 unique_name_in_owner = true
 layout_mode = 2
-icon = SubResource("DPITexture_6u8u5")
+icon = SubResource("DPITexture_nv4la")
 
 [node name="Switchboard" type="VBoxContainer" parent="VBoxContainer/ChannelTab" unique_id=12980455]
 unique_name_in_owner = true
@@ -104,13 +106,15 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 31)
 layout_mode = 2
 selected = 0
-item_count = 3
+item_count = 4
 popup/item_0/text = "..."
 popup/item_0/id = 0
-popup/item_1/text = "1"
+popup/item_1/text = "Convict"
 popup/item_1/id = 1
-popup/item_2/text = "2"
+popup/item_2/text = "Connor"
 popup/item_2/id = 2
+popup/item_3/text = "Convo"
+popup/item_3/id = 3
 
 [node name="SwitchTree" type="Tree" parent="VBoxContainer/ChannelTab/Switchboard" unique_id=1724457680]
 unique_name_in_owner = true
@@ -156,14 +160,14 @@ alignment = 2
 [node name="SaveButton" type="Button" parent="VBoxContainer/SettingsHBox" unique_id=1940130612]
 unique_name_in_owner = true
 layout_mode = 2
-icon = SubResource("DPITexture_6u8u5")
+icon = SubResource("DPITexture_nv4la")
 
 [node name="LockButton" type="Button" parent="VBoxContainer/SettingsHBox" unique_id=1427363302]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 8
 size_flags_vertical = 8
-icon = SubResource("DPITexture_6u8u5")
+icon = SubResource("DPITexture_nv4la")
 
 [node name="SettingsButton" type="Button" parent="VBoxContainer/SettingsHBox" unique_id=1233734742]
 unique_name_in_owner = true
@@ -171,3 +175,11 @@ layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 8
 icon = ExtResource("13_7qho6")
+
+[node name="Dispatcher" type="Node" parent="." unique_id=863037870]
+unique_name_in_owner = true
+script = ExtResource("10_m6n06")
+
+[node name="ScriptWriter" type="Node" parent="." unique_id=4222079]
+unique_name_in_owner = true
+script = ExtResource("11_0clc7")

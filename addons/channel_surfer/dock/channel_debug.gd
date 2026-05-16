@@ -63,7 +63,7 @@ func resolve_save_conflict(filepath: String) -> void:
         return
 
     var scene_uid: String = ResourceUID.path_to_uid(filepath)
-    var temp_dir: DirAccess = DirAccess.open(CS_PATHS.TEMP_STORE)
+    var temp_dir: DirAccess = DirAccess.open(CS_PATHS.TEMP_DIR)
 
     instance_map.erase(scene_uid)
 
@@ -75,7 +75,7 @@ func resolve_save_conflict(filepath: String) -> void:
             return
 
         for temp_filename: String in temp_dir.get_files():
-            var temp_filepath: String = CS_PATHS.TEMP_STORE + temp_filename
+            var temp_filepath: String = CS_PATHS.TEMP_DIR + temp_filename
             var temp_packed: PackedScene = ResourceLoader.load(temp_filepath)
             var temp_state: SceneState = temp_packed.get_state()
             var prop_count: int = temp_state.get_node_property_count(0)

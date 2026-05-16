@@ -23,3 +23,5 @@ mono_crash.*.json
 # Project specific ignores
 addons/channel_surfer/data/*.json
 addons/channel_surfer/data/*.tres
+addons/channel_surfer/data/switches/*
+addons/channel_surfer/data/temp/*

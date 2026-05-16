@@ -1,12 +1,22 @@
 [gd_scene format=3 uid="uid://cpjjmqxnkqrxi"]
 
 [ext_resource type="Script" uid="uid://dd7raa01lblmq" path="res://addons/channel_surfer/components/channel_surfer.gd" id="1_rn2v7"]
+[ext_resource type="Script" uid="uid://b27lyyj1y8fj0" path="res://addons/channel_surfer/data/switches/fudge.gd" id="2_leklq"]
+[ext_resource type="Script" uid="uid://to58mea7efvb" path="res://addons/channel_surfer/data/switches/kronos.gd" id="3_kqt0u"]
 
 [node name="SurferScene" type="Node" unique_id=1824299270]
 
 [node name="ChannelSurfer" type="Node" parent="." unique_id=62512421]
 script = ExtResource("1_rn2v7")
-main = "None"
-sub = "None"
+switch_scripts = [ExtResource("2_leklq"), ExtResource("3_kqt0u")]
+fudge/new_method/new_paramater:Variant = null
+fudge/new_method/new_paramater_1:Variant = null
+fudge/new_method_1/new_paramater:Variant = null
+fudge/new_method_1/new_paramater_1:Container = null
+kronos/new_method/new_paramater:Variant = null
+kronos/new_method/new_paramater_1:ChannelSurfer = null
+kronos/new_method_1/new_paramater:Variant = null
+kronos/new_method_1/new_paramater_1:Variant = null
+switches = ["Fudge", "Kronos"]
 metadata/_custom_type_script = "uid://dd7raa01lblmq"
 metadata/csuid = "csuid_8ml58P8c"

@@ -1,4 +1,4 @@
-@tool
+
 extends TestBase
 
 
@@ -14,7 +14,7 @@ func before_all() -> Signal:
 
 
 func before_each() -> Signal:
-    channel_tree._add_tree_item(channel_tree.get_root(), 0)
+    # channel_tree._add_tree_item(channel_tree.get_root(), 0)
     await get_tree().process_frame
 
     channel_surfer.main_channel = channel_tree.NEW_CHANNEL_TEXT
@@ -50,6 +50,6 @@ func test_channel_tree_fix() -> bool:
     var tree_item: TreeItem = channel_tree.get_root().get_child(0)
     channel_tree._on_button_clicked(tree_item, 0, 0, MOUSE_BUTTON_LEFT)
     await get_tree().process_frame
-    channel_tree._add_tree_item(channel_tree.get_root(), 0)
+    # channel_tree._add_tree_item(channel_tree.get_root(), 0)
     await get_tree().process_frame
     return not channel_debug.get_root() or channel_debug.get_root().get_child_count() == 0

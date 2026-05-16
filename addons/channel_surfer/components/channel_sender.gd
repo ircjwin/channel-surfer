@@ -101,9 +101,6 @@ func _get(property: StringName) -> Variant:
     # if property == POSTCARD_REQUEST:
     #     return postcard_request
 
-    if property == "main/" + main_channel:
-        return main_channel
-
     return null
 
 
@@ -120,10 +117,6 @@ func _set(property: StringName, value: Variant) -> bool:
     # if property == POSTCARD_REQUEST:
     #     postcard_request = value
     #     return true
-
-    if property == "main/" + main_channel:
-        var dog = value
-        return true
 
     return false
 

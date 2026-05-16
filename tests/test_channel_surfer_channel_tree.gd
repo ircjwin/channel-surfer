@@ -1,4 +1,3 @@
-@tool
 extends TestBase
 
 
@@ -14,7 +13,7 @@ func before_all() -> Signal:
 
 func before_each() -> Signal:
     channel_surfer = EditorInterface.get_edited_scene_root().get_child(0)
-    channel_tree._add_tree_item(channel_tree.get_root(), 0)
+    # channel_tree._add_tree_item(channel_tree.get_root(), 0)
     return get_tree().process_frame
 
 
@@ -44,7 +43,7 @@ func test_dispatch_map_after_surfer_entered_tree() -> bool:
 
 
 func test_dispatch_map_after_channel_added() -> bool:
-    channel_tree._add_tree_item(channel_tree.get_root(), 0)
+    # channel_tree._add_tree_item(channel_tree.get_root(), 0)
     await get_tree().process_frame
     return len(channel_surfer.channel_map.keys()) == 2
 

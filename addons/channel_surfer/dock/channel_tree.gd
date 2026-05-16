@@ -79,8 +79,8 @@ func uproot() -> void:
     channel_map.clear()
     build_tree()
 
-    dispatch_channel_map()
     channel_map_changed.emit(channel_map)
+    dispatch_channel_map()
 
 
 func _on_button_clicked(item: TreeItem, _column: int, _id: int, mouse_button_index: int) -> void:
@@ -90,8 +90,8 @@ func _on_button_clicked(item: TreeItem, _column: int, _id: int, mouse_button_ind
         channel_map.erase(item_text)
         item.free()
 
-        dispatch_channel_map()
         channel_map_changed.emit(channel_map)
+        dispatch_channel_map()
 
 
 func _on_item_activated() -> void:
@@ -126,9 +126,10 @@ func _on_item_edited() -> void:
 
     edited_item.set_text(FIRST_COLUMN, unique_text.capitalize())
 
-    dispatch_channel_map()
-    channel_map_changed.emit(channel_map)
     channel_edited.emit(unique_text, prev_item_text, item_parent_text)
+    await get_tree().process_frame
+    channel_map_changed.emit(channel_map)
+    dispatch_channel_map()
 
 
 func _on_item_mouse_selected(mouse_position: Vector2, mouse_button_index: int) -> void:
@@ -177,5 +178,5 @@ func _add_tree_item(channel_text: String) -> void:
     new_item.set_text(FIRST_COLUMN, channel_text.capitalize())
     new_item.add_button(FIRST_COLUMN, remove_item_icon)
 
-    dispatch_channel_map()
     channel_map_changed.emit(channel_map)
+    dispatch_channel_map()
